@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ionic Navigate AIF — Portfolio Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#2D3698; --navy-deep:#1E245F; --gold:#D4A843; --gold-soft:#E8C97A;
+  --ink:#1A1C2E; --muted:#6B6F86; --line:#E7E8F0; --paper:#FBFBFD; --card:#FFFFFF;
+  --pos:#16A565; --neg:#E23B45;
+  --cap-large:#3D5AF1; --cap-mid:#F9A825; --cap-small:#15C9B0;
+  --equity:#3D5AF1; --cash:#F9A825;
+  --ok:#16A565; --ok-bg:#E7F7EF; --br:#E23B45; --br-bg:#FDEBEC;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Reddit Sans',-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--paper);
+  color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px 64px}
+header{background:linear-gradient(115deg,var(--navy-deep) 0%,var(--navy) 62%,#3942B5 100%);color:#fff;
+  padding:30px 0 26px;margin-bottom:26px}
+.head-in{max-width:1180px;margin:0 auto;padding:0 22px;display:flex;justify-content:space-between;
+  align-items:flex-end;flex-wrap:wrap;gap:16px}
+.brand{display:flex;align-items:center;gap:13px}
+.logo-mark{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 32% 30%,var(--gold-soft),var(--gold) 70%);
+  position:relative;flex:none;box-shadow:0 0 0 4px rgba(212,168,67,.18)}
+.logo-mark::after{content:"";position:absolute;inset:9px;border-radius:50%;background:var(--navy-deep)}
+.brand .name{font-weight:800;letter-spacing:.5px;font-size:19px}
+.brand .name b{color:var(--gold)}
+.brand .sub{font-size:10.5px;letter-spacing:3px;text-transform:uppercase;color:#B9BEEA;font-weight:600}
+.head-r{text-align:right}
+.head-r h1{font-size:15px;font-weight:600;color:#EDEEFB}
+.head-r .meta{font-size:12px;color:#A9AEE0;margin-top:2px}
+.eyebrow{font-size:10.5px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:9px}
+section{margin-top:34px}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;border-bottom:2px solid var(--navy);padding-bottom:9px}
+.sec-head h2{font-size:17px;font-weight:700;color:var(--navy-deep)}
+.sec-head .note{font-size:12px;color:var(--muted);margin-left:auto;font-weight:500}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 16px 14px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--navy)}
+.kpi.accent::before{background:var(--gold)}
+.kpi .k-lab{font-size:11px;letter-spacing:.4px;color:var(--muted);text-transform:uppercase;font-weight:600}
+.kpi .k-val{font-size:25px;font-weight:800;color:var(--navy-deep);margin-top:5px;letter-spacing:-.4px}
+.kpi .k-sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+.pos{color:var(--pos)!important}.neg{color:var(--neg)!important}
+
+/* chart */
+.chart-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px 12px}
+.chart-legend{display:flex;gap:20px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.chart-legend .lg{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--navy-deep)}
+.chart-legend .ln{width:22px;height:3px;border-radius:2px}
+.chart-legend .final{margin-left:auto;font-size:12px;color:var(--muted);font-weight:500}
+.chart-legend .final b{font-weight:800}
+#navChart{display:block;width:100%;height:auto}
+.chart-foot{font-size:11.5px;color:var(--muted);margin-top:8px}
+
+/* IPS */
+.ips-tbl{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.ips-tbl thead th{background:var(--navy-deep);color:#EDEEFB;font-size:12.5px;font-weight:700;padding:14px 16px;text-align:center}
+.ips-tbl thead th:first-child{text-align:left}
+.ips-tbl td{padding:13px 16px;font-size:13.5px;border-top:1px solid var(--line);text-align:center;color:var(--ink)}
+.ips-tbl td.p{text-align:left;font-weight:600;color:var(--navy-deep)}
+.ips-tbl tbody tr:nth-child(even){background:#F4F5F9}
+.ips-tbl td.st{font-weight:700}
+.ips-tbl td.st .badge{display:inline-block;padding:5px 16px;border-radius:6px;font-size:12.5px;font-weight:700}
+.ips-tbl td.st.within{background:var(--ok-bg)}
+.ips-tbl td.st.within .badge{color:var(--ok)}
+.ips-tbl td.st.breach{background:var(--br-bg)}
+.ips-tbl td.st.breach .badge{color:var(--br)}
+.ips-note{font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.55}
+.ips-note b{color:#7A5B12}
+
+/* allocation */
+.alloc-grid{display:grid;grid-template-columns:300px 1fr;gap:26px;align-items:center}
+.donut-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center}
+.donut-wrap{position:relative;width:210px;height:210px;margin:4px auto 6px}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.donut-center .dc-val{font-size:23px;font-weight:800;color:var(--navy-deep);line-height:1}
+.donut-center .dc-lab{font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:4px;font-weight:600}
+.legend{display:flex;flex-direction:column;gap:6px;margin-top:8px;text-align:left}
+.legend .lg{display:flex;align-items:center;gap:8px;font-size:12px}
+.legend .sw{width:11px;height:11px;border-radius:3px;flex:none}
+.legend .lg .nm{flex:1}.legend .lg .pc{font-weight:700;color:var(--navy-deep)}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+thead th{background:var(--navy-deep);color:#EDEEFB;font-size:11px;letter-spacing:.4px;text-transform:uppercase;font-weight:600;padding:11px 12px;text-align:right;white-space:nowrap}
+thead th:first-child,tbody td:first-child{text-align:left}
+tbody td{padding:11px 12px;text-align:right;border-top:1px solid var(--line);font-size:13px;white-space:nowrap}
+tbody tr:hover{background:#F6F7FC}
+tbody td.name{font-weight:600;color:var(--navy-deep)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:baseline}
+tfoot td{padding:11px 12px;text-align:right;font-weight:700;color:var(--navy-deep);border-top:2px solid var(--navy);background:#F4F5FB}
+tfoot td:first-child{text-align:left}
+.acct{font-size:11px;color:var(--muted);font-weight:500}
+.deploy{display:flex;height:9px;width:96px;border-radius:5px;overflow:hidden;margin-left:auto;background:var(--line)}
+.deploy i{display:block;height:100%}
+.mcap-banner{background:#E9FBF6;border:1px solid #15C9B0;border-left:4px solid #15C9B0;border-radius:10px;padding:13px 16px;font-size:12.5px;color:#0B6B5C;margin-bottom:16px;line-height:1.5}
+.mcap-banner b{color:#084C41}
+.mcap-row{display:flex;align-items:center;gap:14px;padding:9px 0}
+.mcap-row .ml{width:128px;font-size:13px;font-weight:600;color:var(--navy-deep);flex:none}
+.mcap-row .ml small{display:block;font-weight:500;color:var(--muted);font-size:11px}
+.sbar{flex:1;display:flex;height:26px;border-radius:6px;overflow:hidden;background:var(--line);border:1px solid var(--line)}
+.sbar i{display:flex;align-items:center;justify-content:center;height:100%;color:#fff;font-size:11px;font-weight:700;min-width:0;transition:width .2s}
+.sbar i.s-mid{color:#5E4609}
+.mcap-row.fund .sbar{height:32px}
+.mcap-row.fund .ml{font-size:14px}
+.mcap-legend{display:flex;gap:18px;justify-content:flex-end;margin-bottom:6px;font-size:12px}
+.mcap-legend .lg{display:flex;align-items:center;gap:7px;font-weight:600;color:var(--navy-deep)}
+.mcap-legend .sw{width:12px;height:12px;border-radius:3px}
+.mcap-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px}
+.divider-lite{height:1px;background:var(--line);margin:4px 0}
+.ovl-note{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.ret-note{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+tbody tr.ret-fund td{font-weight:700;color:var(--navy-deep);background:#F4F5FB}
+tbody tr.ret-bench td.name{font-style:italic;color:var(--muted)}
+tbody tr.ret-bench.ret-bench-first{border-top:2px solid var(--navy)}
+.ret-pill{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:5px;font-size:10px;font-weight:700;vertical-align:middle;letter-spacing:.2px}
+.ret-pill.beat{background:#E4F8EF;color:#0B8A52}
+.ret-pill.lag{background:#FDEAEC;color:#C42233}
+.heat{border-collapse:separate;border-spacing:5px;width:100%;background:none;border:none}
+.heat th,.heat td{border:none}
+.heat .corner{background:var(--navy-deep);color:#fff;border-radius:8px;font-size:11px;font-weight:600;padding:10px;text-align:left;line-height:1.3;vertical-align:bottom}
+.heat thead th.ch{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;text-align:center;padding:11px 6px;border-radius:8px}
+.heat tbody th.rh{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;text-align:left;padding:11px 13px;border-radius:8px;white-space:nowrap}
+.heat td.cell{text-align:center;border-radius:8px;padding:13px 6px;min-width:96px;color:#243018;font-weight:600;line-height:1.25}
+.heat td.cell .pc{font-size:17px;font-weight:800;display:block;letter-spacing:-.3px}
+.heat td.cell .fr{font-size:11.5px;opacity:.82;font-weight:600}
+.heat td.diag{background:#DADEE3;color:#7C8190}
+.heat td.diag .pc{color:#9298A6}
+.heat-scale{display:flex;align-items:center;gap:9px;margin-top:14px;font-size:11.5px;color:var(--muted);justify-content:flex-end;flex-wrap:wrap}
+.heat-scale .bar{display:flex;height:10px;width:200px;border-radius:5px;overflow:hidden}
+.heat-scale .bar i{flex:1}
+.read-tip{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
+details.cls{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden}
+details.cls summary{padding:14px 18px;cursor:pointer;font-weight:600;color:var(--navy-deep);font-size:13.5px;list-style:none;display:flex;align-items:center;gap:9px}
+details.cls summary::-webkit-details-marker{display:none}
+details.cls summary .chev{transition:transform .2s;color:var(--gold);font-size:12px}
+details.cls[open] summary .chev{transform:rotate(90deg)}
+.cls-body{padding:4px 18px 20px}
+.cls-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.cls-col h4{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:#fff;padding:6px 10px;border-radius:6px;margin-bottom:9px;display:flex;justify-content:space-between}
+.cls-col ul{list-style:none;font-size:12px;color:var(--ink)}
+.cls-col li{padding:3px 0;border-bottom:1px dotted var(--line);display:flex;justify-content:space-between;gap:8px}
+.cls-col li .vf{color:var(--gold);font-weight:800;font-size:13px;cursor:help}
+.tcap{text-transform:capitalize}
+.flag-note{font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.5}
+.flag-note b{color:#7A5B12}
+footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);line-height:1.6}
+@media(max-width:900px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .alloc-grid{grid-template-columns:1fr}
+  .cls-cols{grid-template-columns:1fr}
+  .table-scroll{overflow-x:auto}
+  .heat-scroll{overflow-x:auto}
+  .ips-scroll{overflow-x:auto}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-in">
+    <div class="brand">
+      <div class="logo-mark"></div>
+      <div>
+        <div class="name">I<b>O</b>NIC ASSET</div>
+        <div class="sub">by Angel One</div>
+      </div>
+    </div>
+    <div class="head-r">
+      <h1>Ionic Navigate AIF — Portfolio Dashboard</h1>
+      <div class="meta">Umbrella: <b style="color:#fff">Group 100568</b> · 5 strategies + cash · Inception <span id="incep"></span> · As of <span id="asof"></span></div>
+    </div>
+  </div>
+</header>
+<div class="wrap">
+  <div class="eyebrow">Fund-level snapshot</div>
+  <div class="kpis" id="kpis"></div>
+
+  <section>
+    <div class="sec-head"><h2>Performance Since Inception — Consolidated NAV vs BSE 500 TRI</h2><span class="note">both rebased to 100 at inception · daily Unit NAV</span></div>
+    <div class="chart-card">
+      <div class="chart-legend">
+        <span class="lg"><span class="ln" style="background:var(--navy)"></span>Ionic Navigate AIF (Consolidated NAV)</span>
+        <span class="lg"><span class="ln" style="background:var(--gold)"></span>BSE 500 TRI</span>
+        <span class="final" id="chartFinal"></span>
+      </div>
+      <svg id="navChart" viewBox="0 0 1120 380" preserveAspectRatio="xMidYMid meet" aria-label="NAV vs BSE 500 since inception"></svg>
+      <div class="chart-foot" id="chartFoot"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Investment Policy Statement (IPS)</h2><span class="note">compliance check · recomputed from holdings as of <span class="asof2"></span></span></div>
+    <div class="ips-scroll">
+      <table class="ips-tbl">
+        <thead><tr><th>IPS Parameter</th><th>Stipulated Range / Limit</th><th>Current (<span class="asof2"></span>)</th><th>Status</th></tr></thead>
+        <tbody id="ipsBody"></tbody>
+      </table>
+    </div>
+    <div class="ips-note" id="ipsNote"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Strategy Allocation</h2><span class="note">share of total AUM, by market value (incl. accrued income)</span></div>
+    <div class="alloc-grid">
+      <div class="donut-card">
+        <div class="donut-wrap">
+          <svg viewBox="0 0 42 42" width="210" height="210" id="donut" aria-label="Allocation donut"></svg>
+          <div class="donut-center"><span class="dc-val" id="donutTot"></span><span class="dc-lab">Total AUM</span></div>
+        </div>
+        <div class="legend" id="donutLegend"></div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Strategy</th><th>AUM (₹ Cr)</th><th>Alloc&nbsp;%</th><th>%&nbsp;G/L</th><th>Equity / Cash</th><th>Cash&nbsp;%</th><th>Stocks</th></tr></thead>
+          <tbody id="allocBody"></tbody>
+          <tfoot id="allocFoot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Market-Cap Split</h2><span class="note">% of equity within each sleeve · AMFI categorisation</span></div>
+    <div class="mcap-banner" id="mcapBanner"></div>
+    <div class="mcap-card">
+      <div class="mcap-legend">
+        <span class="lg"><span class="sw" style="background:var(--cap-large)"></span>Large cap</span>
+        <span class="lg"><span class="sw" style="background:var(--cap-mid)"></span>Mid cap</span>
+        <span class="lg"><span class="sw" style="background:var(--cap-small)"></span>Small cap</span>
+      </div>
+      <div id="mcapFund"></div>
+      <div class="divider-lite"></div>
+      <div id="mcapRows"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Cross-Strategy Stock Overlap</h2><span class="note">common holdings between sleeves</span></div>
+    <div class="ovl-note">Each cell reads <b>row&nbsp;into&nbsp;column</b>: of the <b>row</b> strategy's holdings, the share (and count) that also appear in the <b>column</b> strategy. The denominator is always the row strategy's stock count, so the matrix is intentionally asymmetric.</div>
+    <div class="heat-scroll"><table class="heat" id="heat"></table></div>
+    <div class="heat-scale">
+      <span>Low overlap</span>
+      <div class="bar"><i style="background:#1FC97E"></i><i style="background:#7ED957"></i><i style="background:#F4D923"></i><i style="background:#FBB034"></i><i style="background:#FB8C00"></i><i style="background:#F4511E"></i></div>
+      <span>High overlap</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Market-Cap Classification Reference</h2></div>
+    <details class="cls">
+      <summary><span class="chev">▶</span> View the Large / Mid / Small classification applied to all unique holdings <span style="margin-left:auto;font-weight:500;color:var(--muted);font-size:12px">&#9873; = not found in AMFI file (assumed Small)</span></summary>
+      <div class="cls-body">
+        <div class="cls-cols" id="clsCols"></div>
+        <div class="flag-note"><b>Categorisation source:</b> every holding is mapped to your <b>Mcap classification.xlsx</b> (AMFI Average Market Capitalisation basis &mdash; top 100 Large, next 150 Mid, remainder Small). Flagged &#9873; names are absent from the file and shown as Small pending first AMFI classification.</div>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Performance &amp; Returns</h2><span class="note">time-weighted NAV returns, strategy-wise and vs. benchmarks</span></div>
+    <div class="ret-note">Point-to-point returns computed from daily <b>Unit NAV</b>. <b>1W</b> = <span id="t1w"></span> · <b>1M</b> = <span id="t1m"></span> · <b>2M</b> = <span id="t2m"></span> · <b>Since Inception</b> from base NAV 10.00 (strategies &amp; fund) / inception index level (benchmark), <span id="incep2"></span> &rarr; <span class="asof2"></span>. Where a date was non-trading, the nearest prior available NAV is used. <b>▲&nbsp;Beat&nbsp;/&nbsp;▼&nbsp;Lag</b> compares each strategy &amp; the whole fund against BSE 500 TRI (the only benchmark carried in the NAV files).</div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Strategy / Index</th><th>1 Week</th><th>1 Month</th><th>2 Month</th><th>Since Inception</th></tr></thead>
+        <tbody id="retBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <b>Methodology.</b> AUM, cost, and %&nbsp;G/L taken from the system-generated Portfolio Appraisal (account &amp; group level, as of 30&nbsp;Jun&nbsp;2026). Allocation %&nbsp;= sleeve total MV ÷ fund total MV (₹<span id="ftmv"></span>). <b>%&nbsp;G/L</b> is the statement's reported Gain/Loss ÷ Cost; reported gain excludes accrued income (₹<span id="accr"></span>) that is included in Market Value, so it is not simply MV − Cost. Market-cap split covers the equity portion only (cash excluded) and is mapped from Mcap classification.xlsx. Overlap is computed on the 5 equity strategies; the Cash Portfolio is excluded from market-cap and overlap views.<br>
+    <b>IPS.</b> Each parameter is recomputed from the 30&nbsp;Jun&nbsp;2026 holdings. Passive = Passive sleeve ÷ fund; Active = SageOne+Green&nbsp;Lantern+Buoyant+Carnelian ÷ fund; Equity = fund equity MV ÷ fund MV; market-cap bands are within total equity. The Passive sleeve is presently in transition (holds a mid/small-tilted basket with ~40% uninvested cash), which pulls the fund large-cap share below the 40–60% band.<br>
+    <b>Returns.</b> Time-weighted, daily-valuation method (geometrically linked; after fees; pre-tax) from the system Performance History as on 30&nbsp;Jun&nbsp;2026. The NAV chart rebases the consolidated daily Unit NAV and the BSE 500 TRI index to 100 at inception (9&nbsp;Apr&nbsp;2026).<br>
+    Generated for Ionic Asset (by Angel One) · internal use.
+  </footer>
+</div>
+<script>
+const D = {"asof": "30 Jun 2026", "inception": "09 Apr 2026", "group": {"total_mv": 789568924.78, "equity_mv": 678836137.48, "cash": 110732067.02999999, "other": 720.2699999999998, "cost": 762913199.63, "gl": 24860400.0, "gl_pct": 3.26, "mv_less_cost": 26655725.149999976, "accrued": 1795325.1499999762}, "sleeves": [{"name": "Passive", "account": "100571", "total_mv": 186449483.32, "total_cost": 185439127.29, "gl": 291938.0, "gl_pct": 0.16, "equity_mv": 111546343.22, "cash": 74894518.1, "cash_pct": 40.17, "alloc_pct": 23.61, "nstocks": 39}, {"name": "SageOne", "account": "100572", "total_mv": 80211450.22, "total_cost": 74486131.69, "gl": 5658245.0, "gl_pct": 7.6, "equity_mv": 74165765.0, "cash": 6043153.22, "cash_pct": 7.53, "alloc_pct": 10.16, "nstocks": 16}, {"name": "Green Lantern", "account": "100574", "total_mv": 155447125.02, "total_cost": 149163172.27, "gl": 6073912.0, "gl_pct": 4.07, "equity_mv": 153641863.77, "cash": 1805261.25, "cash_pct": 1.16, "alloc_pct": 19.69, "nstocks": 21}, {"name": "Buoyant", "account": "100575", "total_mv": 189242860.41, "total_cost": 184072759.59, "gl": 4813582.0, "gl_pct": 2.62, "equity_mv": 171713278.77, "cash": 17528140.94, "cash_pct": 9.26, "alloc_pct": 23.97, "nstocks": 29}, {"name": "Carnelian", "account": "100576", "total_mv": 172623236.53, "total_cost": 164157239.51, "gl": 8022723.0, "gl_pct": 4.89, "equity_mv": 167768886.72, "cash": 4854349.81, "cash_pct": 2.81, "alloc_pct": 21.86, "nstocks": 27}, {"name": "Cash Portfolio", "account": "100570", "total_mv": 5594769.28, "total_cost": 5594769.28, "gl": 0.0, "gl_pct": 0.0, "equity_mv": 0, "cash": 5606643.71, "cash_pct": 100.21, "alloc_pct": 0.71, "nstocks": 0}], "order": ["Passive", "SageOne", "Green Lantern", "Buoyant", "Carnelian"], "mcap": {"Passive": {"Large": 5214925.55, "Mid": 103564001.26999998, "Small": 2048997.9}, "SageOne": {"Large": 0.0, "Mid": 29189863.0, "Small": 44908828.6}, "Green Lantern": {"Large": 34843794.199999996, "Mid": 42918960.699999996, "Small": 75669068.02}, "Buoyant": {"Large": 126461185.74, "Mid": 30926165.330000002, "Small": 13969408.8}, "Carnelian": {"Large": 45489775.9, "Mid": 61391618.28, "Small": 60444218.14}}, "fund_mcap": {"Large": 212009681.39, "Mid": 267990608.57999998, "Small": 197040521.45999998}, "overlap": {"Passive": {"Passive": {"count": 39, "den": 39, "pct": 100}, "SageOne": {"count": 1, "den": 39, "pct": 3}, "Green Lantern": {"count": 4, "den": 39, "pct": 10}, "Buoyant": {"count": 5, "den": 39, "pct": 13}, "Carnelian": {"count": 4, "den": 39, "pct": 10}}, "SageOne": {"Passive": {"count": 1, "den": 16, "pct": 6}, "SageOne": {"count": 16, "den": 16, "pct": 100}, "Green Lantern": {"count": 1, "den": 16, "pct": 6}, "Buoyant": {"count": 0, "den": 16, "pct": 0}, "Carnelian": {"count": 0, "den": 16, "pct": 0}}, "Green Lantern": {"Passive": {"count": 4, "den": 21, "pct": 19}, "SageOne": {"count": 1, "den": 21, "pct": 5}, "Green Lantern": {"count": 21, "den": 21, "pct": 100}, "Buoyant": {"count": 3, "den": 21, "pct": 14}, "Carnelian": {"count": 3, "den": 21, "pct": 14}}, "Buoyant": {"Passive": {"count": 5, "den": 29, "pct": 17}, "SageOne": {"count": 0, "den": 29, "pct": 0}, "Green Lantern": {"count": 3, "den": 29, "pct": 10}, "Buoyant": {"count": 29, "den": 29, "pct": 100}, "Carnelian": {"count": 6, "den": 29, "pct": 21}}, "Carnelian": {"Passive": {"count": 4, "den": 27, "pct": 15}, "SageOne": {"count": 0, "den": 27, "pct": 0}, "Green Lantern": {"count": 3, "den": 27, "pct": 11}, "Buoyant": {"count": 6, "den": 27, "pct": 22}, "Carnelian": {"count": 27, "den": 27, "pct": 100}}}, "counts": {"Passive": 39, "SageOne": 16, "Green Lantern": 21, "Buoyant": 29, "Carnelian": 27}, "classification": [{"name": "AVENUE SUPERMARTS LTD", "cap": "Large", "verify": false}, {"name": "AXIS BANK LTD", "cap": "Large", "verify": false}, {"name": "BAJAJ AUTO LTD", "cap": "Large", "verify": false}, {"name": "BAJAJ FINANCE LTD", "cap": "Large", "verify": false}, {"name": "BHARTI AIRTEL LTD", "cap": "Large", "verify": false}, {"name": "CG POWER AND INDUSTRIAL SOLUTIONS LTD", "cap": "Large", "verify": false}, {"name": "DR REDDYS LABORATORIES LTD", "cap": "Large", "verify": false}, {"name": "HDFC BANK LTD", "cap": "Large", "verify": false}, {"name": "HINDUSTAN AERONAUTICS LTD", "cap": "Large", "verify": false}, {"name": "HINDUSTAN UNILEVER LTD", "cap": "Large", "verify": false}, {"name": "ICICI BANK LTD", "cap": "Large", "verify": false}, {"name": "INFOSYS LTD", "cap": "Large", "verify": false}, {"name": "INTERGLOBE AVIATION LTD", "cap": "Large", "verify": false}, {"name": "ITC LTD", "cap": "Large", "verify": false}, {"name": "KOTAK MAHINDRA BANK LTD", "cap": "Large", "verify": false}, {"name": "LARSEN and TOUBRO LTD", "cap": "Large", "verify": false}, {"name": "LTM LTD", "cap": "Large", "verify": false}, {"name": "MARUTI SUZUKI INDIA LTD", "cap": "Large", "verify": false}, {"name": "PIDILITE INDUSTRIES LTD", "cap": "Large", "verify": false}, {"name": "POWER FINANCE CORPORATION LTD", "cap": "Large", "verify": false}, {"name": "RELIANCE INDUSTRIES LTD", "cap": "Large", "verify": false}, {"name": "SBI LIFE INSURANCE COMPANY LTD", "cap": "Large", "verify": false}, {"name": "SHRIRAM FINANCE LTD", "cap": "Large", "verify": false}, {"name": "SIEMENS ENERGY INDIA LTD", "cap": "Large", "verify": false}, {"name": "STATE BANK OF INDIA", "cap": "Large", "verify": false}, {"name": "SUN PHARMACEUTICAL INDUSTRIES LTD", "cap": "Large", "verify": false}, {"name": "TATA CONSULTANCY SERVICES LTD", "cap": "Large", "verify": false}, {"name": "TRENT LTD", "cap": "Large", "verify": false}, {"name": "ULTRATECH CEMENT LTD", "cap": "Large", "verify": false}, {"name": "VARUN BEVERAGES LTD", "cap": "Large", "verify": false}, {"name": "VEDANTA ALUMINIUM METAL LTD", "cap": "Large", "verify": false}, {"name": "ADITYA BIRLA CAPITAL LTD", "cap": "Mid", "verify": false}, {"name": "APL APOLLO TUBES LTD", "cap": "Mid", "verify": false}, {"name": "ASHOK LEYLAND LTD", "cap": "Mid", "verify": false}, {"name": "ASTRAL LTD", "cap": "Mid", "verify": false}, {"name": "AU SMALL FINANCE BANK LTD", "cap": "Mid", "verify": false}, {"name": "AUROBINDO PHARMA LTD", "cap": "Mid", "verify": false}, {"name": "BANK OF INDIA", "cap": "Mid", "verify": false}, {"name": "BANK OF MAHARASHTRA", "cap": "Mid", "verify": false}, {"name": "BHARAT FORGE CO LTD", "cap": "Mid", "verify": false}, {"name": "BHARAT HEAVY ELECTRICALS LTD", "cap": "Mid", "verify": false}, {"name": "BIOCON LTD", "cap": "Mid", "verify": false}, {"name": "CANARA BANK", "cap": "Mid", "verify": false}, {"name": "CHOLAMANDALAM FINANCIAL HOLDINGS LTD", "cap": "Mid", "verify": false}, {"name": "EXIDE INDUSTRIES LTD", "cap": "Mid", "verify": false}, {"name": "FEDERAL BANK LTD", "cap": "Mid", "verify": false}, {"name": "FORTIS HEALTHCARE LTD", "cap": "Mid", "verify": false}, {"name": "FSN E-COMMERCE VENTURES LTD", "cap": "Mid", "verify": false}, {"name": "GE VERNOVA TnD INDIA LTD", "cap": "Mid", "verify": false}, {"name": "GLENMARK PHARMACEUTICALS LTD", "cap": "Mid", "verify": false}, {"name": "GMR AIRPORTS INFRASTRUCTURE LTD", "cap": "Mid", "verify": false}, {"name": "GUJARAT FLUROCHEMICALS LTD", "cap": "Mid", "verify": false}, {"name": "HINDUSTAN PETROLEUM CORPORATION LTD", "cap": "Mid", "verify": false}, {"name": "HITACHI ENERGY INDIA LTD", "cap": "Mid", "verify": false}, {"name": "ICICI LOMBARD GENERAL INSURANCE COMPANY LTD", "cap": "Mid", "verify": false}, {"name": "IDFC FIRST BANK LTD", "cap": "Mid", "verify": false}, {"name": "K P R MILL LTD", "cap": "Mid", "verify": false}, {"name": "KAYNES TECHNOLOGY INDIA LTD", "cap": "Mid", "verify": false}, {"name": "KEI INDUSTRIES LTD", "cap": "Mid", "verify": false}, {"name": "LAURUS LABS LTD", "cap": "Mid", "verify": false}, {"name": "LnT FINANCE LTD", "cap": "Mid", "verify": false}, {"name": "MARICO LTD", "cap": "Mid", "verify": false}, {"name": "MAX FINANCIAL SERVICES LTD", "cap": "Mid", "verify": false}, {"name": "MULTI COMMODITY EXCHANGE OF INDIA LTD", "cap": "Mid", "verify": false}, {"name": "MUTHOOT FINANCE LTD", "cap": "Mid", "verify": false}, {"name": "NATIONAL ALUMINIUM COMPANY LTD", "cap": "Mid", "verify": false}, {"name": "NIPPON LIFE INDIA ASSET MANAGEMENT LTD", "cap": "Mid", "verify": false}, {"name": "NLC INDIA LTD", "cap": "Mid", "verify": false}, {"name": "ONE 97 COMMUNICATIONS LTD", "cap": "Mid", "verify": false}, {"name": "PAGE INDUSTRIES LTD", "cap": "Mid", "verify": false}, {"name": "PETRONET LNG LTD", "cap": "Mid", "verify": false}, {"name": "RADICO KHAITAN LTD", "cap": "Mid", "verify": false}, {"name": "STEEL AUTHORITY OF INDIA LTD", "cap": "Mid", "verify": false}, {"name": "THERMAX LTD", "cap": "Mid", "verify": false}, {"name": "VODAFONE IDEA LTD", "cap": "Mid", "verify": false}, {"name": "WAAREE ENERGIES LTD", "cap": "Mid", "verify": false}, {"name": "ALLIED BLENDERS and DISTILLERS LTD", "cap": "Small", "verify": false}, {"name": "Acutaas Chemicals Limited", "cap": "Small", "verify": false}, {"name": "Aditya Birla Real Estate Limited", "cap": "Small", "verify": false}, {"name": "BANDHAN BANK LTD", "cap": "Small", "verify": false}, {"name": "CAMPUS ACTIVEWEAR LTD", "cap": "Small", "verify": false}, {"name": "CRAFTSMAN AUTOMATION LTD", "cap": "Small", "verify": false}, {"name": "CROMPTON GREAVES CONSUMER ELECTRICAL LTD", "cap": "Small", "verify": false}, {"name": "DR LAL PATHLABS LTD", "cap": "Small", "verify": false}, {"name": "EDELWEISS FINANCIAL SERVICES LTD", "cap": "Small", "verify": false}, {"name": "EID PARRY INDIA LTD", "cap": "Small", "verify": false}, {"name": "EMMVEE PHOTOVOLTAIC POWER LTD", "cap": "Small", "verify": true}, {"name": "ENGINEERS INDIA LTD", "cap": "Small", "verify": false}, {"name": "FORCE MOTORS LTD", "cap": "Small", "verify": false}, {"name": "GREAT EASTERN SHIPPING CO LTD", "cap": "Small", "verify": false}, {"name": "HINDUSTAN COPPER LTD", "cap": "Small", "verify": false}, {"name": "INDEGENE LTD", "cap": "Small", "verify": false}, {"name": "INGERSOLL-RAND INDIA LTD", "cap": "Small", "verify": false}, {"name": "INTELLECT DESIGN ARENA LTD", "cap": "Small", "verify": false}, {"name": "ISGEC HEAVY ENGINEERING LTD", "cap": "Small", "verify": false}, {"name": "JAMNA AUTO INDUSTRIES LTD", "cap": "Small", "verify": false}, {"name": "KALPATARU PROJECTS INTERNATIONAL LTD", "cap": "Small", "verify": false}, {"name": "KAVERI SEED COMPANY LTD", "cap": "Small", "verify": false}, {"name": "KSB LTD", "cap": "Small", "verify": false}, {"name": "LT FOODS LTD", "cap": "Small", "verify": false}, {"name": "NEULAND LABORATORIES LTD", "cap": "Small", "verify": false}, {"name": "PRICOL LTD", "cap": "Small", "verify": false}, {"name": "RAMKRISHNA FORGINGS LTD", "cap": "Small", "verify": false}, {"name": "RATNAMANI METALS and TUBES LTD", "cap": "Small", "verify": false}, {"name": "STAR HEALTH and ALLIED INSURANCE COMPANY LTD", "cap": "Small", "verify": false}, {"name": "TIMKEN INDIA LTD", "cap": "Small", "verify": false}, {"name": "TRIVENI TURBINE LTD", "cap": "Small", "verify": false}, {"name": "VIP INDUSTRIES LTD", "cap": "Small", "verify": false}, {"name": "ZF COMMERCIAL VEHICLE CONTROL SYSTEMS INDIA LTD", "cap": "Small", "verify": false}], "unmatched": ["EMMVEE PHOTOVOLTAIC POWER LTD"], "ips": [{"param": "Passive Portfolio Allocation", "range": "15% – 40%", "current": "23.61%", "status": "Within"}, {"param": "Active Portfolio (Ext. Managers)", "range": "60% – 85%", "current": "75.68%", "status": "Within"}, {"param": "Equity Allocation", "range": "≥ 80%", "current": "85.98%", "status": "Within"}, {"param": "Max Allocation to Any Strategy", "range": "≤ 30%", "current": "23.97% (Buoyant)", "status": "Within"}, {"param": "Max Exposure to Any Single Stock", "range": "≤ 10%", "current": "1.90% (Icici Bank Ltd)", "status": "Within"}, {"param": "Largecap Allocation (within equity)", "range": "40% – 60%", "current": "31.31%", "status": "Breach"}, {"param": "Midcap + Smallcap Allocation (within equity)", "range": "40% – 60%", "current": "68.69%", "status": "Breach"}, {"param": "Cash in Portfolio", "range": "~ 0.5% (target)", "current": "0.71%", "status": "Within"}], "chart": [{"d": "09/04/2026", "nav": 100.0, "bse": 100.0}, {"d": "10/04/2026", "nav": 101.1061, "bse": 101.399}, {"d": "11/04/2026", "nav": 101.1001, "bse": 101.399}, {"d": "12/04/2026", "nav": 101.0931, "bse": 101.399}, {"d": "13/04/2026", "nav": 100.2733, "bse": 100.6279}, {"d": "14/04/2026", "nav": 100.2673, "bse": 100.6279}, {"d": "15/04/2026", "nav": 101.8429, "bse": 102.5285}, {"d": "16/04/2026", "nav": 102.2213, "bse": 102.7922}, {"d": "17/04/2026", "nav": 103.0221, "bse": 103.7622}, {"d": "18/04/2026", "nav": 103.0151, "bse": 103.7622}, {"d": "19/04/2026", "nav": 103.0081, "bse": 103.7622}, {"d": "20/04/2026", "nav": 103.1032, "bse": 103.7463}, {"d": "21/04/2026", "nav": 103.7058, "bse": 104.5476}, {"d": "22/04/2026", "nav": 102.8419, "bse": 104.3109}, {"d": "23/04/2026", "nav": 102.1782, "bse": 103.5011}, {"d": "24/04/2026", "nav": 101.1982, "bse": 102.4143}, {"d": "25/04/2026", "nav": 101.1912, "bse": 102.4143}, {"d": "26/04/2026", "nav": 101.1842, "bse": 102.4143}, {"d": "27/04/2026", "nav": 102.0461, "bse": 103.5782}, {"d": "28/04/2026", "nav": 101.8309, "bse": 103.2861}, {"d": "29/04/2026", "nav": 102.2854, "bse": 103.7535}, {"d": "30/04/2026", "nav": 101.978, "bse": 102.9009}, {"d": "01/05/2026", "nav": 101.972, "bse": 102.9009}, {"d": "02/05/2026", "nav": 101.965, "bse": 102.9009}, {"d": "03/05/2026", "nav": 101.958, "bse": 102.9009}, {"d": "04/05/2026", "nav": 102.6027, "bse": 103.5551}, {"d": "05/05/2026", "nav": 102.5116, "bse": 103.4676}, {"d": "06/05/2026", "nav": 103.5507, "bse": 104.9182}, {"d": "07/05/2026", "nav": 104.0992, "bse": 105.2714}, {"d": "08/05/2026", "nav": 103.883, "bse": 104.8486}, {"d": "09/05/2026", "nav": 103.876, "bse": 104.8486}, {"d": "10/05/2026", "nav": 103.869, "bse": 104.8486}, {"d": "11/05/2026", "nav": 102.5787, "bse": 103.3776}, {"d": "12/05/2026", "nav": 100.4525, "bse": 101.1174}, {"d": "13/05/2026", "nav": 101.1622, "bse": 101.4395}, {"d": "14/05/2026", "nav": 101.5446, "bse": 102.4659}, {"d": "15/05/2026", "nav": 101.3584, "bse": 102.1367}, {"d": "16/05/2026", "nav": 101.3514, "bse": 102.1367}, {"d": "17/05/2026", "nav": 101.3444, "bse": 102.1367}, {"d": "18/05/2026", "nav": 100.6997, "bse": 101.7841}, {"d": "19/05/2026", "nav": 101.1382, "bse": 102.0352}, {"d": "20/05/2026", "nav": 101.1992, "bse": 102.3191}, {"d": "21/05/2026", "nav": 101.4054, "bse": 102.4389}, {"d": "22/05/2026", "nav": 101.4275, "bse": 102.6796}, {"d": "23/05/2026", "nav": 101.4205, "bse": 102.6796}, {"d": "24/05/2026", "nav": 101.4135, "bse": 102.6796}, {"d": "25/05/2026", "nav": 102.4015, "bse": 103.9646}, {"d": "26/05/2026", "nav": 102.3004, "bse": 103.7875}, {"d": "27/05/2026", "nav": 102.3044, "bse": 104.1104}, {"d": "28/05/2026", "nav": 102.2974, "bse": 104.1104}, {"d": "29/05/2026", "nav": 101.4575, "bse": 102.7253}, {"d": "30/05/2026", "nav": 101.4505, "bse": 102.7253}, {"d": "31/05/2026", "nav": 101.6507, "bse": 102.7253}, {"d": "01/06/2026", "nav": 100.4445, "bse": 101.7408}, {"d": "02/06/2026", "nav": 100.4515, "bse": 102.1759}, {"d": "03/06/2026", "nav": 100.3914, "bse": 101.8308}, {"d": "04/06/2026", "nav": 100.6947, "bse": 102.0289}, {"d": "05/06/2026", "nav": 100.7528, "bse": 101.9597}, {"d": "06/06/2026", "nav": 100.7528, "bse": 101.9597}, {"d": "07/06/2026", "nav": 100.7528, "bse": 101.9597}, {"d": "08/06/2026", "nav": 99.3694, "bse": 100.6017}, {"d": "09/06/2026", "nav": 100.3874, "bse": 101.4877}, {"d": "10/06/2026", "nav": 99.6947, "bse": 100.8732}, {"d": "11/06/2026", "nav": 99.1772, "bse": 100.3346}, {"d": "12/06/2026", "nav": 101.3744, "bse": 102.5564}, {"d": "13/06/2026", "nav": 101.3744, "bse": 102.5564}, {"d": "14/06/2026", "nav": 101.3744, "bse": 102.5564}, {"d": "15/06/2026", "nav": 102.4766, "bse": 103.7815}, {"d": "16/06/2026", "nav": 102.943, "bse": 104.2902}, {"d": "17/06/2026", "nav": 103.6177, "bse": 104.8296}, {"d": "18/06/2026", "nav": 104.2234, "bse": 105.2915}, {"d": "19/06/2026", "nav": 104.2474, "bse": 105.0888}, {"d": "20/06/2026", "nav": 104.2474, "bse": 105.0888}, {"d": "21/06/2026", "nav": 104.2474, "bse": 105.0888}, {"d": "22/06/2026", "nav": 105.0282, "bse": 105.576}, {"d": "23/06/2026", "nav": 104.3164, "bse": 104.4856}, {"d": "24/06/2026", "nav": 104.6948, "bse": 105.0427}, {"d": "25/06/2026", "nav": 104.5367, "bse": 104.993}, {"d": "26/06/2026", "nav": 104.5367, "bse": 104.993}, {"d": "27/06/2026", "nav": 104.5367, "bse": 104.993}, {"d": "28/06/2026", "nav": 104.5367, "bse": 104.993}, {"d": "29/06/2026", "nav": 104.0642, "bse": 104.4934}, {"d": "30/06/2026", "nav": 104.2244, "bse": 104.4981}, {"d": "01/07/2026", "nav": 104.4816, "bse": 104.964}], "chart_meta": {"start": "09/04/2026", "end": "01/07/2026", "nav_end": 104.48, "bse_end": 104.96, "nav_start": 9.9897, "idx_start": 44514.31}, "returns": {"Navigate (Whole)": {"1W": -0.09, "1M": 2.73, "2M": 2.2, "SI": 4.12}, "Passive": {"1W": 0.35, "1M": 1.93, "2M": -1.06, "SI": -1.29, "bench": "BSE 500 TRI"}, "SageOne": {"1W": 1.66, "1M": 4.18, "2M": 6.91, "SI": 11.74, "bench": "BSE 500 TRI"}, "Green Lantern": {"1W": -0.95, "1M": 1.72, "2M": 1.24, "SI": 6.28, "bench": "BSE 500 TRI"}, "Buoyant": {"1W": 0.06, "1M": 2.87, "2M": 2.13, "SI": 3.94, "bench": "BSE 500 TRI"}, "Carnelian": {"1W": -0.39, "1M": 3.0, "2M": 4.94, "SI": 8.18, "bench": "BSE 500 TRI"}, "BSE 500 TRI": {"1W": 0.01, "1M": 1.73, "2M": 1.55, "SI": 4.5}}, "ret_targets": {"1W": "23 Jun 2026", "1M": "30 May 2026", "2M": "30 Apr 2026"}};
+const INR = n => Math.round(n).toLocaleString('en-IN');
+const CR  = n => (n/1e7).toFixed(2);
+const capColor = {Large:'var(--cap-large)',Mid:'var(--cap-mid)',Small:'var(--cap-small)'};
+const sleeveColors = ['#3D5AF1','#00B8D4','#F9A825','#7B5CFF','#15C9B0','#9AA0B8'];
+document.getElementById('asof').textContent = D.asof;
+document.getElementById('incep').textContent = D.inception;
+document.getElementById('incep2').textContent = D.inception;
+document.querySelectorAll('.asof2').forEach(e=>e.textContent=D.asof);
+document.getElementById('ftmv').textContent = INR(D.group.total_mv);
+if(document.getElementById('accr'))document.getElementById('accr').textContent=INR(D.group.accrued||0);
+
+/* KPI */
+const g=D.group;
+const eqPct=(g.equity_mv/g.total_mv*100).toFixed(2);
+const cashPct=(g.cash/g.total_mv*100).toFixed(2);
+const kpis=[
+ {lab:'Total Fund AUM',val:'₹'+CR(g.total_mv)+' Cr',sub:'₹'+INR(g.total_mv),accent:false},
+ {lab:'Fund %&nbsp;G/L',val:(g.gl_pct>0?'+':'')+g.gl_pct+'%',sub:'₹'+INR(g.gl)+' unrealised (ex-accrued)',cls:g.gl_pct>=0?'pos':'neg',accent:true},
+ {lab:'Equity Deployed',val:eqPct+'%',sub:'₹'+CR(g.equity_mv)+' Cr',accent:false},
+ {lab:'Cash &amp; Equiv.',val:cashPct+'%',sub:'₹'+CR(g.cash)+' Cr',accent:true},
+ {lab:'Strategies',val:'5 + 1',sub:D.classification.length+' unique stocks',accent:false},
+];
+document.getElementById('kpis').innerHTML=kpis.map(k=>`
+ <div class="kpi ${k.accent?'accent':''}"><div class="k-lab">${k.lab}</div>
+ <div class="k-val ${k.cls||''}">${k.val}</div><div class="k-sub">${k.sub}</div></div>`).join('');
+
+/* NAV chart */
+(function(){
+ const c=D.chart, W=1120,H=380, mL=52,mR=16,mT=16,mB=40;
+ const pw=W-mL-mR, ph=H-mT-mB;
+ let vmin=Infinity,vmax=-Infinity;
+ c.forEach(p=>{vmin=Math.min(vmin,p.nav,p.bse);vmax=Math.max(vmax,p.nav,p.bse);});
+ vmin=Math.floor(vmin)-1; vmax=Math.ceil(vmax)+1;
+ const X=i=>mL+pw*i/(c.length-1);
+ const Y=v=>mT+ph*(1-(v-vmin)/(vmax-vmin));
+ let svg='';
+ // gridlines + y labels
+ const step=(vmax-vmin)<=12?2:5;
+ for(let v=vmin;v<=vmax;v+=step){
+   svg+=`<line x1="${mL}" y1="${Y(v).toFixed(1)}" x2="${W-mR}" y2="${Y(v).toFixed(1)}" stroke="#EEF0F7" stroke-width="1"/>`;
+   svg+=`<text x="${mL-8}" y="${(Y(v)+3.5).toFixed(1)}" font-size="11" fill="#6B6F86" text-anchor="end">${v}</text>`;
+ }
+ // baseline 100
+ svg+=`<line x1="${mL}" y1="${Y(100).toFixed(1)}" x2="${W-mR}" y2="${Y(100).toFixed(1)}" stroke="#C9CEE0" stroke-width="1" stroke-dasharray="4 4"/>`;
+ // x labels (month ticks)
+ let lastMon='';
+ c.forEach((p,i)=>{const mo=p.d.slice(3);if(mo!==lastMon){lastMon=mo;
+   svg+=`<line x1="${X(i).toFixed(1)}" y1="${mT}" x2="${X(i).toFixed(1)}" y2="${mT+ph}" stroke="#F2F3F8" stroke-width="1"/>`;
+   const mn=['','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; const mm=+p.d.slice(3,5);
+   svg+=`<text x="${X(i).toFixed(1)}" y="${H-14}" font-size="11" fill="#6B6F86" text-anchor="middle">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mm-1]}</text>`;}});
+ const line=(key,color,w)=>{const pts=c.map((p,i)=>`${X(i).toFixed(1)},${Y(p[key]).toFixed(1)}`).join(' ');
+   return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;};
+ // area under NAV
+ const areaPts=c.map((p,i)=>`${X(i).toFixed(1)},${Y(p.nav).toFixed(1)}`).join(' ');
+ svg+=`<polygon points="${mL},${Y(vmin).toFixed(1)} ${areaPts} ${(W-mR)},${Y(vmin).toFixed(1)}" fill="#2D3698" opacity="0.05"/>`;
+ svg+=line('bse','#D4A843',2.2);
+ svg+=line('nav','#2D3698',2.6);
+ // end dots + labels
+ const li=c.length-1;
+ [['nav','#2D3698'],['bse','#D4A843']].forEach(([k,col])=>{
+   svg+=`<circle cx="${X(li).toFixed(1)}" cy="${Y(c[li][k]).toFixed(1)}" r="3.5" fill="${col}"/>`;
+   svg+=`<text x="${(X(li)-6).toFixed(1)}" y="${(Y(c[li][k])-7).toFixed(1)}" font-size="11.5" font-weight="700" fill="${col}" text-anchor="end">${c[li][k].toFixed(1)}</text>`;
+ });
+ document.getElementById('navChart').innerHTML=svg;
+ const m=D.chart_meta;
+ document.getElementById('chartFinal').innerHTML=`Since inception: Fund <b class="${m.nav_end>=100?'pos':'neg'}">${(m.nav_end-100>=0?'+':'')}${(m.nav_end-100).toFixed(2)}%</b> · BSE 500 <b class="${m.bse_end>=100?'pos':'neg'}">${(m.bse_end-100>=0?'+':'')}${(m.bse_end-100).toFixed(2)}%</b>`;
+ document.getElementById('chartFoot').textContent=`Rebased to 100 on ${m.start} · ${c.length} daily observations through ${m.end}. Fund line = consolidated Unit NAV; benchmark = BSE 500 TRI index.`;
+})();
+
+/* IPS */
+document.getElementById('ipsBody').innerHTML=D.ips.map(r=>{
+ const cls=r.status==='Within'?'within':'breach';
+ return `<tr><td class="p">${r.param}</td><td>${r.range}</td><td>${r.current}</td>
+   <td class="st ${cls}"><span class="badge">${r.status}</span></td></tr>`;}).join('');
+const breaches=D.ips.filter(r=>r.status==='Breach');
+document.getElementById('ipsNote').innerHTML = breaches.length
+ ? `<b>&#9873; ${breaches.length} parameter(s) outside stipulated bands:</b> ${breaches.map(b=>b.param).join('; ')}. This reflects the Passive sleeve's transitional positioning (mid/small-tilted basket with ~40% cash awaiting deployment), which lowers the blended large-cap share. Expected to normalise as the Passive book is fully deployed to its target large-cap benchmark weights.`
+ : `All IPS parameters are within their stipulated ranges.`;
+
+/* Allocation donut + table */
+const aum=D.sleeves; let acc=0; const R=15.915,C=2*Math.PI*R;
+let ds=`<circle cx="21" cy="21" r="${R}" fill="none" stroke="#EEF0F7" stroke-width="6"/>`;
+aum.forEach((a,i)=>{const frac=a.total_mv/g.total_mv;const len=frac*C,gap=C-len,off=C*0.25-acc*C;
+ ds+=`<circle cx="21" cy="21" r="${R}" fill="none" stroke="${sleeveColors[i]}" stroke-width="6" stroke-dasharray="${len.toFixed(3)} ${gap.toFixed(3)}" stroke-dashoffset="${off.toFixed(3)}" transform="rotate(-90 21 21)"><title>${a.name}: ${a.alloc_pct}%</title></circle>`;acc+=frac;});
+document.getElementById('donut').innerHTML=ds;
+document.getElementById('donutTot').textContent='₹'+CR(g.total_mv)+'Cr';
+document.getElementById('donutLegend').innerHTML=aum.map((a,i)=>`<div class="lg"><span class="sw" style="background:${sleeveColors[i]}"></span><span class="nm">${a.name}</span><span class="pc">${a.alloc_pct}%</span></div>`).join('');
+document.getElementById('allocBody').innerHTML=aum.map((a,i)=>{
+ const eqShare=a.total_mv>0?Math.max(0,a.equity_mv)/a.total_mv*100:0;const cashShare=100-eqShare;
+ const glCls=a.gl_pct>=0?'pos':'neg';
+ return `<tr><td class="name"><span class="dot" style="background:${sleeveColors[i]}"></span>${a.name}<div class="acct">${a.account}</div></td>
+ <td>${CR(a.total_mv)}</td><td>${a.alloc_pct}%</td><td class="${glCls}">${a.gl_pct>0?'+':''}${a.gl_pct}%</td>
+ <td><div class="deploy" title="Equity ${eqShare.toFixed(1)}% / Cash ${cashShare.toFixed(1)}%"><i style="width:${eqShare}%;background:var(--equity)"></i><i style="width:${cashShare}%;background:var(--cash)"></i></div></td>
+ <td>${a.cash_pct}%</td><td>${a.nstocks||'—'}</td></tr>`;}).join('');
+document.getElementById('allocFoot').innerHTML=`<tr><td>Ionic Navigate AIF (Total)</td><td>${CR(g.total_mv)}</td><td>100.0%</td>
+ <td class="${g.gl_pct>=0?'pos':'neg'}">${g.gl_pct>0?'+':''}${g.gl_pct}%</td>
+ <td><div class="deploy"><i style="width:${eqPct}%;background:var(--equity)"></i><i style="width:${cashPct}%;background:var(--cash)"></i></div></td>
+ <td>${cashPct}%</td><td>—</td></tr>`;
+
+/* Market cap */
+document.getElementById('mcapBanner').innerHTML=`<b>&#10003; Source: AMFI categorisation</b> &mdash; mapped from your <i>Mcap classification.xlsx</i> (Large = top 100 by market cap, Mid = next 150, Small = 251+). ${D.unmatched.length? '<b>'+D.unmatched.length+' name(s)</b> not in the file (listed after the categorisation cut-off) shown as Small &mdash; flagged &#9873; below.' : 'All holdings matched to the file.'}`;
+function sbar(b){const tot=b.Large+b.Mid+b.Small;
+ const seg=(v,cls,key)=>{const p=tot?v/tot*100:0;if(p<=0)return '';return `<i class="${cls}" style="width:${p}%;background:${capColor[key]}" title="${key}: ${p.toFixed(1)}%">${p>=8?p.toFixed(0)+'%':''}</i>`;};
+ return `<div class="sbar">${seg(b.Large,'s-large','Large')}${seg(b.Mid,'s-mid','Mid')}${seg(b.Small,'s-small','Small')}</div>`;}
+document.getElementById('mcapFund').innerHTML=`<div class="mcap-row fund"><div class="ml">Fund — Equity<small>blended across sleeves</small></div>${sbar(D.fund_mcap)}</div>`;
+document.getElementById('mcapRows').innerHTML=D.order.map(s=>{const idx=aum.findIndex(a=>a.name===s);
+ return `<div class="mcap-row"><div class="ml"><span class="dot" style="background:${sleeveColors[idx]}"></span>${s}</div>${sbar(D.mcap[s])}</div>`;}).join('');
+
+/* Overlap */
+function heatColor(pct){if(pct>=99)return '#D6DAE2';if(pct===0)return '#1FC97E';if(pct<=7)return '#7ED957';if(pct<=14)return '#F4D923';if(pct<=20)return '#FBB034';if(pct<=27)return '#FB8C00';return '#F4511E';}
+const ord=D.order;
+let hh=`<thead><tr><th class="corner">Row&nbsp;holdings<br>also&nbsp;in&nbsp;→<br>column</th>`;
+ord.forEach(c=>hh+=`<th class="ch">${c}</th>`);hh+=`</tr></thead><tbody>`;
+ord.forEach(r=>{hh+=`<tr><th class="rh">${r}<div class="acct" style="color:#C7CBF0;font-weight:500">${D.counts[r]} stocks</div></th>`;
+ ord.forEach(c=>{const o=D.overlap[r][c];const diag=(r===c);hh+=`<td class="cell ${diag?'diag':''}" style="background:${heatColor(o.pct)}"><span class="pc">${o.pct}%</span><span class="fr">${diag?'self':o.count+'/'+o.den}</span></td>`;});
+ hh+=`</tr>`;});
+hh+=`</tbody>`;document.getElementById('heat').innerHTML=hh;
+
+/* Classification reference */
+const caps={Large:[],Mid:[],Small:[]};D.classification.forEach(c=>caps[c.cap].push(c));
+const capHead={Large:'var(--cap-large)',Mid:'var(--cap-mid)',Small:'var(--cap-small)'};
+const capInk={Large:'#fff',Mid:'#5E4609',Small:'#fff'};
+document.getElementById('clsCols').innerHTML=['Large','Mid','Small'].map(k=>{
+ const items=caps[k].map(c=>{const nm=c.name.replace(/ LTD$| LIMITED$/i,'').replace(/\b\w+/g,w=>w.length>2?w[0]+w.slice(1).toLowerCase():w);
+  return `<li><span class="tcap">${nm}</span>${c.verify?'<span class="vf" title="Not found in AMFI file — assumed Small">&#9873;</span>':''}</li>`;}).join('');
+ return `<div class="cls-col"><h4 style="background:${capHead[k]};color:${capInk[k]}">${k} cap<span>${caps[k].length}</span></h4><ul>${items}</ul></div>`;}).join('');
+
+/* Returns */
+const retRows=[
+ {key:'Green Lantern',label:'Green Lantern',type:'advisor',bench:'BSE 500 TRI'},
+ {key:'Buoyant',label:'Buoyant',type:'advisor',bench:'BSE 500 TRI'},
+ {key:'Carnelian',label:'Carnelian',type:'advisor',bench:'BSE 500 TRI'},
+ {key:'SageOne',label:'SageOne',type:'advisor',bench:'BSE 500 TRI'},
+ {key:'Passive',label:'Passive',type:'advisor',bench:'BSE 500 TRI'},
+ {key:'Navigate (Whole)',label:'Ionic Navigate AIF (Whole)',type:'fund',bench:'BSE 500 TRI'},
+ {key:'BSE 500 TRI',label:'BSE 500 TRI',type:'bench'},
+];
+const pctCell=(v,beat)=>{const cls=v>0?'pos':v<0?'neg':'';const pill=beat===undefined?'':`<span class="ret-pill ${beat?'beat':'lag'}">${beat?'▲ Beat':'▼ Lag'}</span>`;
+ return `<td class="${cls}">${v>0?'+':''}${v.toFixed(2)}%${pill}</td>`;};
+document.getElementById('retBody').innerHTML=retRows.map(r=>{
+ const d=D.returns[r.key];const bd=r.bench?D.returns[r.bench]:null;
+ let rowCls=r.type==='fund'?'ret-fund':(r.type==='bench'?'ret-bench':'');
+ if(r.type==='bench'&&r.key==='BSE 500 TRI')rowCls+=' ret-bench-first';
+ const periods=['1W','1M','2M','SI'];
+ const cells=periods.map(p=>{const v=d[p]; if(v===null||v===undefined) return '<td class="muted">—</td>';
+   const beat=bd?(v>(bd[p]??-Infinity)):undefined; return pctCell(v,beat);}).join('');
+ return `<tr class="${rowCls}"><td class="name">${r.label}</td>${cells}</tr>`;}).join('');
+// period target labels
+if(D.ret_targets){document.getElementById('t1w').textContent=D.ret_targets['1W'];
+ document.getElementById('t1m').textContent=D.ret_targets['1M'];
+ document.getElementById('t2m').textContent=D.ret_targets['2M'];}
+</script>
+</body>
+</html>
