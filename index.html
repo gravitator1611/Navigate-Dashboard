@@ -275,8 +275,9 @@ tbody tr.benchrow td:first-child{font-style:italic}
   </section>
 
   <section>
-    <div class="sec-head"><h2>Performance &amp; Returns</h2><span class="note">time-weighted NAV returns, strategy-wise and vs. benchmarks</span></div>
-    <div class="ret-note">Point-to-point returns computed from daily <b>Unit NAV</b>. <b>1W</b> = <span id="t1w"></span> · <b>1M</b> = <span id="t1m"></span> · <b>2M</b> = <span id="t2m"></span> · <b>Since Inception</b> from base NAV 10.00 (strategies &amp; fund) / inception index level (benchmark), <span id="incep2"></span> &rarr; <span class="asof2"></span>. Where a date was non-trading, the nearest prior available NAV is used. <b>▲&nbsp;Beat&nbsp;/&nbsp;▼&nbsp;Lag</b> compares each strategy &amp; the whole fund against BSE 500 TRI (the only benchmark carried in the NAV files).</div>
+    <div class="sec-head"><h2>Performance &amp; Returns</h2><span class="note">point-to-point NAV returns &middot; choose the as-of date</span></div>
+    <div class="hist-controls"><label>As of <select id="retAsof"></select></label><span class="hist-days" id="retWindow"></span></div>
+    <div class="ret-note">Point-to-point returns from daily <b>Unit NAV</b>, measured back from the selected as-of date: <b>1W</b> = 7 days, <b>1M</b> = 1 month, <b>2M</b> = 2 months. <b>Since Inception</b> from base NAV 10.00 (9 Apr = 10) for strategies &amp; the fund, and from the inception index level for the benchmark (inception <span id="incep2"></span>). Nearest prior available NAV is used for non-trading dates; a dash means the start date precedes inception. <b>▲&nbsp;Beat&nbsp;/&nbsp;▼&nbsp;Lag</b> compares each strategy &amp; the whole fund against BSE 500 TRI.</div>
     <div class="table-scroll">
       <table>
         <thead><tr><th>Strategy / Index</th><th>1 Week</th><th>1 Month</th><th>2 Month</th><th>Since Inception</th></tr></thead>
@@ -461,30 +462,47 @@ document.getElementById('clsCols').innerHTML=['Large','Mid','Small'].map(k=>{
   return `<li><span class="tcap">${nm}</span>${c.verify?'<span class="vf" title="Not found in AMFI file — assumed Small">&#9873;</span>':''}</li>`;}).join('');
  return `<div class="cls-col"><h4 style="background:${capHead[k]};color:${capInk[k]}">${k} cap<span>${caps[k].length}</span></h4><ul>${items}</ul></div>`;}).join('');
 
-/* Returns */
-const retRows=[
- {key:'Green Lantern',label:'Green Lantern',type:'advisor',bench:'BSE 500 TRI'},
- {key:'Buoyant',label:'Buoyant',type:'advisor',bench:'BSE 500 TRI'},
- {key:'Carnelian',label:'Carnelian',type:'advisor',bench:'BSE 500 TRI'},
- {key:'SageOne',label:'SageOne',type:'advisor',bench:'BSE 500 TRI'},
- {key:'Passive',label:'Passive',type:'advisor',bench:'BSE 500 TRI'},
- {key:'Navigate (Whole)',label:'Ionic Navigate AIF (Whole)',type:'fund',bench:'BSE 500 TRI'},
- {key:'BSE 500 TRI',label:'BSE 500 TRI',type:'bench'},
-];
-const pctCell=(v,beat)=>{const cls=v>0?'pos':v<0?'neg':'';const pill=beat===undefined?'':`<span class="ret-pill ${beat?'beat':'lag'}">${beat?'▲ Beat':'▼ Lag'}</span>`;
- return `<td class="${cls}">${v>0?'+':''}${v.toFixed(2)}%${pill}</td>`;};
-document.getElementById('retBody').innerHTML=retRows.map(r=>{
- const d=D.returns[r.key];const bd=r.bench?D.returns[r.bench]:null;
- let rowCls=r.type==='fund'?'ret-fund':(r.type==='bench'?'ret-bench':'');
- if(r.type==='bench'&&r.key==='BSE 500 TRI')rowCls+=' ret-bench-first';
- const periods=['1W','1M','2M','SI'];
- const cells=periods.map(p=>{const v=d[p]; if(v===null||v===undefined) return '<td class="muted">—</td>';
-   const beat=bd?(v>(bd[p]??-Infinity)):undefined; return pctCell(v,beat);}).join('');
- return `<tr class="${rowCls}"><td class="name">${r.label}</td>${cells}</tr>`;}).join('');
-// period target labels
-if(D.ret_targets){document.getElementById('t1w').textContent=D.ret_targets['1W'];
- document.getElementById('t1m').textContent=D.ret_targets['1M'];
- document.getElementById('t2m').textContent=D.ret_targets['2M'];}
+/* Returns (interactive as-of date) */
+(function(){
+ if(!D.series||!D.hist_dates) return;
+ const dates=D.hist_dates;
+ const rows=[{k:'Green Lantern'},{k:'Buoyant'},{k:'Carnelian'},{k:'SageOne'},{k:'Passive'},
+   {k:'Fund',label:'Ionic Navigate AIF (Whole)',fund:true},{k:'BSE 500 TRI',bench:true}];
+ const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+ const fmtD=iso=>{const p=iso.split('-');return p[2]+' '+MN[+p[1]-1]+' '+p[0];};
+ const sel=document.getElementById('retAsof');
+ dates.forEach(d=>sel.add(new Option(fmtD(d),d)));
+ sel.value=dates[dates.length-1];
+ const navOnBefore=(arr,iso)=>{let r=null;for(let i=0;i<arr.length;i++){if(arr[i][0]<=iso)r=arr[i][1];else break;}return r;};
+ const shift=(iso,days,months)=>{let[y,m,dd]=iso.split('-').map(Number);
+   if(months){m-=months;while(m<=0){m+=12;y--;}}
+   const dim=new Date(Date.UTC(y,m,0)).getUTCDate(); if(dd>dim)dd=dim;
+   let ms=Date.UTC(y,m-1,dd); if(days)ms-=days*86400000;
+   return new Date(ms).toISOString().slice(0,10);};
+ const pctCell=(v,beat)=>{if(v===null||v===undefined)return '<td class="muted">&mdash;</td>';
+   const cls=v>0?'pos':v<0?'neg':'';const pill=beat===undefined?'':`<span class="ret-pill ${beat?'beat':'lag'}">${beat?'▲ Beat':'▼ Lag'}</span>`;
+   return `<td class="${cls}">${v>0?'+':''}${v.toFixed(2)}%${pill}</td>`;};
+ function seriesRet(arr,asof,starts){const end=navOnBefore(arr,asof); if(!end)return {};
+   const o={SI:(end/10-1)*100};
+   for(const p in starts){const s=navOnBefore(arr,starts[p]); o[p]=s?(end/s-1)*100:null;}
+   return o;}
+ function calc(){
+   const asof=sel.value;
+   const starts={'1W':shift(asof,7,0),'1M':shift(asof,0,1),'2M':shift(asof,0,2)};
+   document.getElementById('retWindow').textContent='Inception → '+fmtD(asof);
+   const bd=seriesRet(D.series['BSE 500 TRI'].post,asof,starts);
+   const periods=['1W','1M','2M','SI'];
+   document.getElementById('retBody').innerHTML=rows.map(r=>{
+     const d=seriesRet(D.series[r.k].post,asof,starts);
+     const rowCls=r.fund?'ret-fund':(r.bench?'ret-bench ret-bench-first':'');
+     const lbl=r.label||((D.adv_label&&D.adv_label[r.k])||r.k);
+     const cells=periods.map(p=>{const v=d[p];
+       const beat=r.bench?undefined:((bd[p]===null||bd[p]===undefined||v===null||v===undefined)?undefined:(v>bd[p]));
+       return pctCell(v,beat);}).join('');
+     return `<tr class="${rowCls}"><td class="name">${lbl}</td>${cells}</tr>`;}).join('');
+ }
+ sel.onchange=calc; calc();
+})();
 
 /* ---- Historical Returns Explorer ---- */
 (function(){
