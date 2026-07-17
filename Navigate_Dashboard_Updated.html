@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ionic Navigate AIF — Portfolio Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#2D3698; --navy-deep:#1E245F; --gold:#D4A843; --gold-soft:#E8C97A;
+  --ink:#1A1C2E; --muted:#6B6F86; --line:#E7E8F0; --paper:#FBFBFD; --card:#FFFFFF;
+  --pos:#16A565; --neg:#E23B45;
+  --cap-large:#3D5AF1; --cap-mid:#F9A825; --cap-small:#15C9B0;
+  --equity:#3D5AF1; --cash:#F9A825;
+  --ok:#16A565; --ok-bg:#E7F7EF; --br:#E23B45; --br-bg:#FDEBEC;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Reddit Sans',-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--paper);
+  color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px 64px}
+header{background:linear-gradient(115deg,var(--navy-deep) 0%,var(--navy) 62%,#3942B5 100%);color:#fff;
+  padding:30px 0 26px;margin-bottom:26px}
+.head-in{max-width:1180px;margin:0 auto;padding:0 22px;display:flex;justify-content:space-between;
+  align-items:flex-end;flex-wrap:wrap;gap:16px}
+.brand{display:flex;align-items:center;gap:13px}
+.logo-mark{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 32% 30%,var(--gold-soft),var(--gold) 70%);
+  position:relative;flex:none;box-shadow:0 0 0 4px rgba(212,168,67,.18)}
+.logo-mark::after{content:"";position:absolute;inset:9px;border-radius:50%;background:var(--navy-deep)}
+.brand .name{font-weight:800;letter-spacing:.5px;font-size:19px}
+.brand .name b{color:var(--gold)}
+.brand .sub{font-size:10.5px;letter-spacing:3px;text-transform:uppercase;color:#B9BEEA;font-weight:600}
+.head-r{text-align:right}
+.head-r h1{font-size:15px;font-weight:600;color:#EDEEFB}
+.head-r .meta{font-size:12px;color:#A9AEE0;margin-top:2px}
+.eyebrow{font-size:10.5px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:9px}
+section{margin-top:34px}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;border-bottom:2px solid var(--navy);padding-bottom:9px}
+.sec-head h2{font-size:17px;font-weight:700;color:var(--navy-deep)}
+.sec-head .note{font-size:12px;color:var(--muted);margin-left:auto;font-weight:500}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 16px 14px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--navy)}
+.kpi.accent::before{background:var(--gold)}
+.kpi .k-lab{font-size:11px;letter-spacing:.4px;color:var(--muted);text-transform:uppercase;font-weight:600}
+.kpi .k-val{font-size:25px;font-weight:800;color:var(--navy-deep);margin-top:5px;letter-spacing:-.4px}
+.kpi .k-sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+.pos{color:var(--pos)!important}.neg{color:var(--neg)!important}
+
+/* chart */
+.chart-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px 12px}
+.chart-legend{display:flex;gap:20px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.chart-legend .lg{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--navy-deep)}
+.chart-legend .ln{width:22px;height:3px;border-radius:2px}
+.chart-legend .final{margin-left:auto;font-size:12px;color:var(--muted);font-weight:500}
+.chart-legend .final b{font-weight:800}
+#navChart{display:block;width:100%;height:auto}
+.chart-foot{font-size:11.5px;color:var(--muted);margin-top:8px}
+
+/* IPS */
+.ips-tbl{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.ips-tbl thead th{background:var(--navy-deep);color:#EDEEFB;font-size:12.5px;font-weight:700;padding:14px 16px;text-align:center}
+.ips-tbl thead th:first-child{text-align:left}
+.ips-tbl td{padding:13px 16px;font-size:13.5px;border-top:1px solid var(--line);text-align:center;color:var(--ink)}
+.ips-tbl td.p{text-align:left;font-weight:600;color:var(--navy-deep)}
+.ips-tbl tbody tr:nth-child(even){background:#F4F5F9}
+.ips-tbl td.st{font-weight:700}
+.ips-tbl td.st .badge{display:inline-block;padding:5px 16px;border-radius:6px;font-size:12.5px;font-weight:700}
+.ips-tbl td.st.within{background:var(--ok-bg)}
+.ips-tbl td.st.within .badge{color:var(--ok)}
+.ips-tbl td.st.breach{background:var(--br-bg)}
+.ips-tbl td.st.breach .badge{color:var(--br)}
+.ips-note{font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.55}
+.ips-note b{color:#7A5B12}
+
+/* allocation */
+.alloc-grid{display:grid;grid-template-columns:300px 1fr;gap:26px;align-items:center}
+.donut-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center}
+.donut-wrap{position:relative;width:210px;height:210px;margin:4px auto 6px}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.donut-center .dc-val{font-size:23px;font-weight:800;color:var(--navy-deep);line-height:1}
+.donut-center .dc-lab{font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:4px;font-weight:600}
+.legend{display:flex;flex-direction:column;gap:6px;margin-top:8px;text-align:left}
+.legend .lg{display:flex;align-items:center;gap:8px;font-size:12px}
+.legend .sw{width:11px;height:11px;border-radius:3px;flex:none}
+.legend .lg .nm{flex:1}.legend .lg .pc{font-weight:700;color:var(--navy-deep)}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+thead th{background:var(--navy-deep);color:#EDEEFB;font-size:11px;letter-spacing:.4px;text-transform:uppercase;font-weight:600;padding:11px 12px;text-align:right;white-space:nowrap}
+thead th:first-child,tbody td:first-child{text-align:left}
+tbody td{padding:11px 12px;text-align:right;border-top:1px solid var(--line);font-size:13px;white-space:nowrap}
+tbody tr:hover{background:#F6F7FC}
+tbody td.name{font-weight:600;color:var(--navy-deep)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:baseline}
+tfoot td{padding:11px 12px;text-align:right;font-weight:700;color:var(--navy-deep);border-top:2px solid var(--navy);background:#F4F5FB}
+tfoot td:first-child{text-align:left}
+.acct{font-size:11px;color:var(--muted);font-weight:500}
+.deploy{display:flex;height:9px;width:96px;border-radius:5px;overflow:hidden;margin-left:auto;background:var(--line)}
+.deploy i{display:block;height:100%}
+.mcap-banner{background:#E9FBF6;border:1px solid #15C9B0;border-left:4px solid #15C9B0;border-radius:10px;padding:13px 16px;font-size:12.5px;color:#0B6B5C;margin-bottom:16px;line-height:1.5}
+.mcap-banner b{color:#084C41}
+.mcap-row{display:flex;align-items:center;gap:14px;padding:9px 0}
+.mcap-row .ml{width:128px;font-size:13px;font-weight:600;color:var(--navy-deep);flex:none}
+.mcap-row .ml small{display:block;font-weight:500;color:var(--muted);font-size:11px}
+.sbar{flex:1;display:flex;height:26px;border-radius:6px;overflow:hidden;background:var(--line);border:1px solid var(--line)}
+.sbar i{display:flex;align-items:center;justify-content:center;height:100%;color:#fff;font-size:11px;font-weight:700;min-width:0;transition:width .2s}
+.sbar i.s-mid{color:#5E4609}
+.mcap-row.fund .sbar{height:32px}
+.mcap-row.fund .ml{font-size:14px}
+.mcap-legend{display:flex;gap:18px;justify-content:flex-end;margin-bottom:6px;font-size:12px}
+.mcap-legend .lg{display:flex;align-items:center;gap:7px;font-weight:600;color:var(--navy-deep)}
+.mcap-legend .sw{width:12px;height:12px;border-radius:3px}
+.mcap-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px}
+.divider-lite{height:1px;background:var(--line);margin:4px 0}
+.ovl-note{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.ret-note{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+tbody tr.ret-fund td{font-weight:700;color:var(--navy-deep);background:#F4F5FB}
+tbody tr.ret-bench td.name{font-style:italic;color:var(--muted)}
+tbody tr.ret-bench.ret-bench-first{border-top:2px solid var(--navy)}
+.ret-pill{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:5px;font-size:10px;font-weight:700;vertical-align:middle;letter-spacing:.2px}
+.ret-pill.beat{background:#E4F8EF;color:#0B8A52}
+.ret-pill.lag{background:#FDEAEC;color:#C42233}
+.heat{border-collapse:separate;border-spacing:5px;width:100%;background:none;border:none}
+.heat th,.heat td{border:none}
+.heat .corner{background:var(--navy-deep);color:#fff;border-radius:8px;font-size:11px;font-weight:600;padding:10px;text-align:left;line-height:1.3;vertical-align:bottom}
+.heat thead th.ch{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;text-align:center;padding:11px 6px;border-radius:8px}
+.heat tbody th.rh{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;text-align:left;padding:11px 13px;border-radius:8px;white-space:nowrap}
+.heat td.cell{text-align:center;border-radius:8px;padding:13px 6px;min-width:96px;color:#243018;font-weight:600;line-height:1.25}
+.heat td.cell .pc{font-size:17px;font-weight:800;display:block;letter-spacing:-.3px}
+.heat td.cell .fr{font-size:11.5px;opacity:.82;font-weight:600}
+.heat td.diag{background:#DADEE3;color:#7C8190}
+.heat td.diag .pc{color:#9298A6}
+.heat-scale{display:flex;align-items:center;gap:9px;margin-top:14px;font-size:11.5px;color:var(--muted);justify-content:flex-end;flex-wrap:wrap}
+.heat-scale .bar{display:flex;height:10px;width:200px;border-radius:5px;overflow:hidden}
+.heat-scale .bar i{flex:1}
+.read-tip{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
+details.cls{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden}
+details.cls summary{padding:14px 18px;cursor:pointer;font-weight:600;color:var(--navy-deep);font-size:13.5px;list-style:none;display:flex;align-items:center;gap:9px}
+details.cls summary::-webkit-details-marker{display:none}
+details.cls summary .chev{transition:transform .2s;color:var(--gold);font-size:12px}
+details.cls[open] summary .chev{transform:rotate(90deg)}
+.cls-body{padding:4px 18px 20px}
+.cls-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.cls-col h4{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:#fff;padding:6px 10px;border-radius:6px;margin-bottom:9px;display:flex;justify-content:space-between}
+.cls-col ul{list-style:none;font-size:12px;color:var(--ink)}
+.cls-col li{padding:3px 0;border-bottom:1px dotted var(--line);display:flex;justify-content:space-between;gap:8px}
+.cls-col li .vf{color:var(--gold);font-weight:800;font-size:13px;cursor:help}
+.tcap{text-transform:capitalize}
+.flag-note{font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.5}
+.flag-note b{color:#7A5B12}
+footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);line-height:1.6}
+@media(max-width:900px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .alloc-grid{grid-template-columns:1fr}
+  .cls-cols{grid-template-columns:1fr}
+  .table-scroll{overflow-x:auto}
+  .heat-scroll{overflow-x:auto}
+  .ips-scroll{overflow-x:auto}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* --- added: explorer / MoM / risk --- */
+.hist-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:13px;color:var(--muted)}
+.hist-controls label{display:flex;align-items:center;gap:7px;font-weight:600;color:var(--navy-deep)}
+.hist-controls select{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-weight:600;cursor:pointer}
+.hist-controls .hist-days{margin-left:auto;font-weight:700;color:var(--navy-deep);background:#F4F5FB;padding:6px 12px;border-radius:8px}
+.cellpos{color:var(--pos);font-weight:700}.cellneg{color:var(--neg);font-weight:700}
+.mom-tbl td,.risk-tbl td{text-align:right}
+.mom-tbl td:first-child,.risk-tbl td:first-child{text-align:left;font-weight:600;color:var(--navy-deep)}
+.partial{font-size:9.5px;color:var(--gold);font-weight:800;letter-spacing:.4px;background:#FBF3DF;padding:1px 5px;border-radius:4px;vertical-align:middle}
+tbody tr.fundrow td{background:#F4F5FB;font-weight:700;color:var(--navy-deep)}
+tbody tr.benchrow td{font-style:italic;color:var(--muted);border-top:2px solid var(--navy)}
+tbody tr.benchrow td:first-child{font-style:italic}
+
+/* --- Business MIS --- */
+.mis-block{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:18px}
+.mis-h3{font-size:14px;font-weight:700;color:var(--navy-deep);margin-bottom:12px}
+.mis-2col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+#misWeekly{display:block;width:100%;height:auto}
+.splitbar{display:flex;height:34px;border-radius:8px;overflow:hidden;background:var(--line);margin:4px 0 10px}
+.splitbar i{display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;white-space:nowrap;min-width:0}
+.split-legend{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:600;gap:10px}
+.mis-scroll{max-height:440px;overflow:auto;border-radius:12px}
+.mis-rm td,.mis-rm th{text-align:right}
+.mis-rm td:first-child,.mis-rm td:nth-child(2),.mis-rm th:first-child,.mis-rm th:nth-child(2){text-align:left}
+.mis-rm td:first-child{font-weight:600;color:var(--navy-deep)}
+.mis-rm thead th{position:sticky;top:0;z-index:1}
+.seg-chip{display:inline-block;padding:3px 11px;border-radius:6px;font-size:11px;font-weight:700}
+.seg-HNI{background:#EEF1FF;color:#2D3698}.seg-UHNI{background:#FBF3DF;color:#8A6D1B}.seg-Mixed{background:#E9FBF6;color:#0B6B5C}
+.clsrow{display:flex;align-items:center;gap:12px;padding:5px 0}
+.clsrow .cn{width:40px;font-weight:700;color:var(--navy-deep)}
+.clsrow .cbar{flex:1;background:var(--line);border-radius:5px;height:20px;overflow:hidden}
+.clsrow .cbar i{display:block;height:100%;background:linear-gradient(90deg,var(--navy),#3942B5)}
+.clsrow .cv{width:200px;text-align:right;font-size:12.5px;color:var(--ink);white-space:nowrap}
+@media(max-width:900px){.mis-2col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-in">
+    <div class="brand">
+      <div class="logo-mark"></div>
+      <div>
+        <div class="name">I<b>O</b>NIC ASSET</div>
+        <div class="sub">by Angel One</div>
+      </div>
+    </div>
+    <div class="head-r">
+      <h1>Ionic Navigate AIF — Portfolio Dashboard</h1>
+      <div class="meta">Umbrella: <b style="color:#fff">Group 100568</b> · 5 strategies + cash · Inception <span id="incep"></span> · As of <span id="asof"></span></div>
+    </div>
+  </div>
+</header>
+<div class="wrap">
+  <div class="eyebrow">Fund-level snapshot</div>
+  <div class="kpis" id="kpis"></div>
+
+  <section>
+    <div class="sec-head"><h2>Performance Since Inception — Consolidated NAV vs BSE 500 TRI</h2><span class="note">9 Apr = NAV 10 · daily Unit NAV vs BSE 500 TRI (rebased to 10)</span></div>
+    <div class="chart-card">
+      <div class="chart-legend">
+        <span class="lg"><span class="ln" style="background:var(--navy)"></span>Ionic Navigate AIF (Consolidated NAV)</span>
+        <span class="lg"><span class="ln" style="background:var(--gold)"></span>BSE 500 TRI</span>
+        <span class="final" id="chartFinal"></span>
+      </div>
+      <svg id="navChart" viewBox="0 0 1120 380" preserveAspectRatio="xMidYMid meet" aria-label="NAV vs BSE 500 since inception"></svg>
+      <div class="chart-foot" id="chartFoot"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Investment Policy Statement (IPS)</h2><span class="note">compliance check · recomputed from holdings as of <span class="asof2"></span></span></div>
+    <div class="ips-scroll">
+      <table class="ips-tbl">
+        <thead><tr><th>IPS Parameter</th><th>Stipulated Range / Limit</th><th>Current (<span class="asof2"></span>)</th><th>Status</th></tr></thead>
+        <tbody id="ipsBody"></tbody>
+      </table>
+    </div>
+    <div class="ips-note" id="ipsNote"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Strategy Allocation</h2><span class="note">share of total AUM, by market value (incl. accrued income)</span></div>
+    <div class="alloc-grid">
+      <div class="donut-card">
+        <div class="donut-wrap">
+          <svg viewBox="0 0 42 42" width="210" height="210" id="donut" aria-label="Allocation donut"></svg>
+          <div class="donut-center"><span class="dc-val" id="donutTot"></span><span class="dc-lab">Total AUM</span></div>
+        </div>
+        <div class="legend" id="donutLegend"></div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Strategy</th><th>AUM (₹ Cr)</th><th>Alloc&nbsp;%</th><th>%&nbsp;G/L</th><th>Equity / Cash</th><th>Cash&nbsp;%</th><th>Stocks</th></tr></thead>
+          <tbody id="allocBody"></tbody>
+          <tfoot id="allocFoot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Market-Cap Split</h2><span class="note">% of equity within each sleeve · AMFI categorisation</span></div>
+    <div class="mcap-banner" id="mcapBanner"></div>
+    <div class="mcap-card">
+      <div class="mcap-legend">
+        <span class="lg"><span class="sw" style="background:var(--cap-large)"></span>Large cap</span>
+        <span class="lg"><span class="sw" style="background:var(--cap-mid)"></span>Mid cap</span>
+        <span class="lg"><span class="sw" style="background:var(--cap-small)"></span>Small cap</span>
+      </div>
+      <div id="mcapFund"></div>
+      <div class="divider-lite"></div>
+      <div id="mcapRows"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Cross-Strategy Stock Overlap</h2><span class="note">common holdings between sleeves</span></div>
+    <div class="ovl-note">Each cell reads <b>row&nbsp;into&nbsp;column</b>: of the <b>row</b> strategy's holdings, the share (and count) that also appear in the <b>column</b> strategy. The denominator is always the row strategy's stock count, so the matrix is intentionally asymmetric.</div>
+    <div class="heat-scroll"><table class="heat" id="heat"></table></div>
+    <div class="heat-scale">
+      <span>Low overlap</span>
+      <div class="bar"><i style="background:#1FC97E"></i><i style="background:#7ED957"></i><i style="background:#F4D923"></i><i style="background:#FBB034"></i><i style="background:#FB8C00"></i><i style="background:#F4511E"></i></div>
+      <span>High overlap</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Market-Cap Classification Reference</h2></div>
+    <details class="cls">
+      <summary><span class="chev">▶</span> View the Large / Mid / Small classification applied to all unique holdings <span style="margin-left:auto;font-weight:500;color:var(--muted);font-size:12px">&#9873; = not found in AMFI file (assumed Small)</span></summary>
+      <div class="cls-body">
+        <div class="cls-cols" id="clsCols"></div>
+        <div class="flag-note"><b>Categorisation source:</b> every holding is mapped to your <b>Mcap classification.xlsx</b> (AMFI Average Market Capitalisation basis &mdash; top 100 Large, next 150 Mid, remainder Small). Flagged &#9873; names are absent from the file and shown as Small pending first AMFI classification.</div>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Performance &amp; Returns</h2><span class="note">point-to-point NAV returns &middot; choose the as-of date</span></div>
+    <div class="hist-controls"><label>As of <select id="retAsof"></select></label><span class="hist-days" id="retWindow"></span></div>
+    <div class="ret-note">Point-to-point returns from daily <b>Unit NAV</b>, measured back from the selected as-of date: <b>1W</b> = 7 days, <b>1M</b> = 1 month, <b>2M</b> = 2 months. <b>Since Inception</b> from base NAV 10.00 (9 Apr = 10) for strategies &amp; the fund, and from the inception index level for the benchmark (inception <span id="incep2"></span>). Nearest prior available NAV is used for non-trading dates; a dash means the start date precedes inception. <b>▲&nbsp;Beat&nbsp;/&nbsp;▼&nbsp;Lag</b> compares each strategy &amp; the whole fund against BSE 500 TRI.</div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Strategy / Index</th><th>1 Week</th><th>1 Month</th><th>2 Month</th><th>Since Inception</th></tr></thead>
+        <tbody id="retBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+
+  <!-- HISTORICAL RETURNS EXPLORER -->
+  <section>
+    <div class="sec-head"><h2>Historical Returns Explorer</h2><span class="note">choose any window &middot; pre-tax &amp; post-tax, NAV-based</span></div>
+    <div class="hist-controls">
+      <label>From <select id="histFrom"></select></label>
+      <label>To <select id="histTo"></select></label>
+      <span class="hist-days" id="histDays"></span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Strategy / Index</th><th>Pre-Tax Return</th><th>Post-Tax Return</th></tr></thead>
+        <tbody id="histBody"></tbody>
+      </table>
+    </div>
+    <div class="ret-note">Point-to-point on daily Unit NAV between the selected dates (nearest prior available NAV when a date is non-trading). <b>Pre-tax</b> uses the Pre-Tax NAV files; <b>post-tax</b> uses the standard NAV files. BSE 500 TRI is an index (no tax distinction, both columns equal).</div>
+  </section>
+
+  <!-- MONTH ON MONTH -->
+  <section>
+    <div class="sec-head"><h2>Month-on-Month Performance</h2><span class="note">calendar-month NAV returns &middot; fund &amp; advisor level</span></div>
+    <div class="table-scroll">
+      <table class="mom-tbl"><thead><tr id="momHead"></tr></thead><tbody id="momBody"></tbody></table>
+    </div>
+    <div class="ret-note">Each cell is the strategy's return over the calendar month, measured from its previous month-end Unit NAV (the first month is measured from the inception NAV). The latest month is month-to-date (<b>MTD</b>). Post-tax NAV basis.</div>
+  </section>
+
+  <!-- RISK METRICS -->
+  <section>
+    <div class="sec-head"><h2>Risk Metrics vs BSE 500 TRI</h2><span class="note">annualised &middot; since inception</span></div>
+    <div class="table-scroll">
+      <table class="risk-tbl"><thead><tr id="riskHead"></tr></thead><tbody id="riskBody"></tbody></table>
+    </div>
+    <div class="ret-note" id="riskMeta"></div>
+  </section>
+
+
+  <!-- BUSINESS MIS -->
+  <section>
+    <div class="sec-head"><h2>Business MIS</h2><span class="note">flows, RM productivity &amp; share-class mix · as of <span id="misAsof"></span></span></div>
+    <div class="kpis" id="misKpis" style="grid-template-columns:repeat(4,1fr)"></div>
+
+    <div class="mis-block">
+      <h3 class="mis-h3">Weekly Inflow</h3>
+      <div class="chart-legend"><span class="lg"><span class="ln" style="background:var(--navy)"></span>New Activation</span><span class="lg"><span class="ln" style="background:var(--gold)"></span>Top-up</span></div>
+      <svg id="misWeekly" viewBox="0 0 1120 320" preserveAspectRatio="xMidYMid meet" aria-label="Weekly inflow"></svg>
+      <div class="ret-note">Gross subscriptions by week of activation (drawdown) date, ₹ Cr. Navy = new activations, gold = top-ups (additional corpus).</div>
+    </div>
+
+    <div class="mis-2col">
+      <div class="mis-block"><h3 class="mis-h3">New Activation vs Top-up</h3><div id="misSplitFlow"></div></div>
+      <div class="mis-block"><h3 class="mis-h3">HNI vs UHNI</h3><div id="misSplitSeg"></div></div>
+    </div>
+
+    <div class="mis-block">
+      <h3 class="mis-h3">AUM per Relationship Manager</h3>
+      <div class="mis-scroll"><table class="mis-rm">
+        <thead><tr><th>Relationship Manager</th><th>Team Lead</th><th>Clients</th><th>AUM (₹ Cr)</th><th>HNI (₹ Cr)</th><th>UHNI (₹ Cr)</th><th>Segment</th></tr></thead>
+        <tbody id="misRm"></tbody></table></div>
+      <div class="ret-note">Gross inflow sourced per RM (title-cased for grouping). Segment tags a RM by their book: HNI, UHNI, or Mixed.</div>
+    </div>
+
+    <div class="mis-block">
+      <h3 class="mis-h3">Share-Class-wise Analysis</h3>
+      <div id="misClasses"></div>
+      <div class="ret-note">Inflow by AIF share class (fee/hurdle series). Bar length = share of total inflow.</div>
+    </div>
+  </section>
+
+  <footer>
+    <b>Methodology.</b> AUM, cost, and %&nbsp;G/L taken from the system-generated Portfolio Appraisal (account &amp; group level, as of 30&nbsp;Jun&nbsp;2026). Allocation %&nbsp;= sleeve total MV ÷ fund total MV (₹<span id="ftmv"></span>). <b>%&nbsp;G/L</b> is the statement's reported Gain/Loss ÷ Cost; reported gain excludes accrued income (₹<span id="accr"></span>) that is included in Market Value, so it is not simply MV − Cost. Market-cap split covers the equity portion only (cash excluded) and is mapped from Mcap classification.xlsx. Overlap is computed on the 5 equity strategies; the Cash Portfolio is excluded from market-cap and overlap views.<br>
+    <b>IPS.</b> Each parameter is recomputed from the 30&nbsp;Jun&nbsp;2026 holdings. Passive = Passive sleeve ÷ fund; Active = SageOne+Green&nbsp;Lantern+Buoyant+Carnelian ÷ fund; Equity = fund equity MV ÷ fund MV; market-cap bands are within total equity. The Passive sleeve is presently in transition (holds a mid/small-tilted basket with ~40% uninvested cash), which pulls the fund large-cap share below the 40–60% band.<br>
+    <b>Returns.</b> Time-weighted, daily-valuation method (geometrically linked; after fees; pre-tax) from the system Performance History as on 30&nbsp;Jun&nbsp;2026. The NAV chart rebases the consolidated daily Unit NAV and the BSE 500 TRI index to 100 at inception (9&nbsp;Apr&nbsp;2026).<br>
+    Generated for Ionic Asset (by Angel One) · internal use.
+  </footer>
+</div>
+<script>
+const D = {"asof": "05 Jul 2026", "inception": "09 Apr 2026", "group": {"total_mv": 852388004.53, "cost": 824582789.38, "gl": 25846106.0, "gl_pct": 3.13, "accrued": 1959109.1499999762, "equity_mv": 787185076.1100001, "cash": 65202208.14000001, "other": 720.2699999999998}, "sleeves": [{"name": "Passive", "account": "100571", "total_mv": 164544499.02, "total_cost": 165711348.45, "gl": -1925111.0, "gl_pct": -1.16, "equity_mv": 163506582.3, "cash": 1029294.72, "cash_pct": 0.63, "alloc_pct": 19.3, "nstocks": 39}, {"name": "SageOne", "account": "100572", "total_mv": 85605028.74, "total_cost": 79353049.34, "gl": 6184906.0, "gl_pct": 7.79, "equity_mv": 78482651.8, "cash": 7119844.94, "cash_pct": 8.32, "alloc_pct": 10.04, "nstocks": 16}, {"name": "Green Lantern", "account": "100574", "total_mv": 203189450.39, "total_cost": 198719536.58, "gl": 4176823.0, "gl_pct": 2.1, "equity_mv": 164449068.19, "cash": 38740382.2, "cash_pct": 19.07, "alloc_pct": 23.84, "nstocks": 21}, {"name": "Buoyant", "account": "100575", "total_mv": 206506445.87, "total_cost": 198783862.72, "gl": 7325174.0, "gl_pct": 3.68, "equity_mv": 197678534.36, "cash": 8826470.81, "cash_pct": 4.27, "alloc_pct": 24.23, "nstocks": 29}, {"name": "Carnelian", "account": "100576", "total_mv": 188283090.22, "total_cost": 177755502.01, "gl": 10084314.0, "gl_pct": 5.67, "equity_mv": 183068239.46, "cash": 5214850.76, "cash_pct": 2.77, "alloc_pct": 22.09, "nstocks": 27}, {"name": "Cash Portfolio", "account": "100570", "total_mv": 4259490.28, "total_cost": 4259490.28, "gl": 0.0, "gl_pct": 0.0, "equity_mv": 0, "cash": 4271364.71, "cash_pct": 100.28, "alloc_pct": 0.5, "nstocks": 0}], "order": ["Passive", "SageOne", "Green Lantern", "Buoyant", "Carnelian"], "mcap": {"Passive": {"Large": 7189490.25, "Mid": 152544161.75000003, "Small": 3014668.8}, "SageOne": {"Large": 0.0, "Mid": 31793769.200000003, "Small": 46621809.2}, "Green Lantern": {"Large": 36692642.6, "Mid": 44555100.3, "Small": 82908234.44}, "Buoyant": {"Large": 137929598.8, "Mid": 43331402.120000005, "Small": 16020124.54}, "Carnelian": {"Large": 49188667.949999996, "Mid": 66578453.88, "Small": 66857843.23}}, "fund_mcap": {"Large": 231000399.6, "Mid": 338802887.25000006, "Small": 215422680.20999998}, "overlap": {"Passive": {"Passive": {"count": 39, "den": 39, "pct": 100}, "SageOne": {"count": 1, "den": 39, "pct": 3}, "Green Lantern": {"count": 4, "den": 39, "pct": 10}, "Buoyant": {"count": 5, "den": 39, "pct": 13}, "Carnelian": {"count": 4, "den": 39, "pct": 10}}, "SageOne": {"Passive": {"count": 1, "den": 16, "pct": 6}, "SageOne": {"count": 16, "den": 16, "pct": 100}, "Green Lantern": {"count": 1, "den": 16, "pct": 6}, "Buoyant": {"count": 0, "den": 16, "pct": 0}, "Carnelian": {"count": 0, "den": 16, "pct": 0}}, "Green Lantern": {"Passive": {"count": 4, "den": 21, "pct": 19}, "SageOne": {"count": 1, "den": 21, "pct": 5}, "Green Lantern": {"count": 21, "den": 21, "pct": 100}, "Buoyant": {"count": 3, "den": 21, "pct": 14}, "Carnelian": {"count": 3, "den": 21, "pct": 14}}, "Buoyant": {"Passive": {"count": 5, "den": 29, "pct": 17}, "SageOne": {"count": 0, "den": 29, "pct": 0}, "Green Lantern": {"count": 3, "den": 29, "pct": 10}, "Buoyant": {"count": 29, "den": 29, "pct": 100}, "Carnelian": {"count": 6, "den": 29, "pct": 21}}, "Carnelian": {"Passive": {"count": 4, "den": 27, "pct": 15}, "SageOne": {"count": 0, "den": 27, "pct": 0}, "Green Lantern": {"count": 3, "den": 27, "pct": 11}, "Buoyant": {"count": 6, "den": 27, "pct": 22}, "Carnelian": {"count": 27, "den": 27, "pct": 100}}}, "counts": {"Passive": 39, "SageOne": 16, "Green Lantern": 21, "Buoyant": 29, "Carnelian": 27}, "classification": [{"name": "AVENUE SUPERMARTS LTD", "cap": "Large", "verify": false}, {"name": "AXIS BANK LTD", "cap": "Large", "verify": false}, {"name": "BAJAJ AUTO LTD", "cap": "Large", "verify": false}, {"name": "BAJAJ FINANCE LTD", "cap": "Large", "verify": false}, {"name": "BHARTI AIRTEL LTD", "cap": "Large", "verify": false}, {"name": "CG POWER AND INDUSTRIAL SOLUTIONS LTD", "cap": "Large", "verify": false}, {"name": "DR REDDYS LABORATORIES LTD", "cap": "Large", "verify": false}, {"name": "HDFC BANK LTD", "cap": "Large", "verify": false}, {"name": "HINDUSTAN AERONAUTICS LTD", "cap": "Large", "verify": false}, {"name": "HINDUSTAN UNILEVER LTD", "cap": "Large", "verify": false}, {"name": "ICICI BANK LTD", "cap": "Large", "verify": false}, {"name": "INFOSYS LTD", "cap": "Large", "verify": false}, {"name": "INTERGLOBE AVIATION LTD", "cap": "Large", "verify": false}, {"name": "ITC LTD", "cap": "Large", "verify": false}, {"name": "KOTAK MAHINDRA BANK LTD", "cap": "Large", "verify": false}, {"name": "LARSEN and TOUBRO LTD", "cap": "Large", "verify": false}, {"name": "LTM LTD", "cap": "Large", "verify": false}, {"name": "MARUTI SUZUKI INDIA LTD", "cap": "Large", "verify": false}, {"name": "PIDILITE INDUSTRIES LTD", "cap": "Large", "verify": false}, {"name": "POWER FINANCE CORPORATION LTD", "cap": "Large", "verify": false}, {"name": "RELIANCE INDUSTRIES LTD", "cap": "Large", "verify": false}, {"name": "SBI LIFE INSURANCE COMPANY LTD", "cap": "Large", "verify": false}, {"name": "SHRIRAM FINANCE LTD", "cap": "Large", "verify": false}, {"name": "SIEMENS ENERGY INDIA LTD", "cap": "Large", "verify": false}, {"name": "STATE BANK OF INDIA", "cap": "Large", "verify": false}, {"name": "SUN PHARMACEUTICAL INDUSTRIES LTD", "cap": "Large", "verify": false}, {"name": "TATA CONSULTANCY SERVICES LTD", "cap": "Large", "verify": false}, {"name": "TRENT LTD", "cap": "Large", "verify": false}, {"name": "ULTRATECH CEMENT LTD", "cap": "Large", "verify": false}, {"name": "VEDANTA ALUMINIUM METAL LTD", "cap": "Large", "verify": false}, {"name": "ADITYA BIRLA CAPITAL LTD", "cap": "Mid", "verify": false}, {"name": "APL APOLLO TUBES LTD", "cap": "Mid", "verify": false}, {"name": "ASHOK LEYLAND LTD", "cap": "Mid", "verify": false}, {"name": "ASTRAL LTD", "cap": "Mid", "verify": false}, {"name": "AU SMALL FINANCE BANK LTD", "cap": "Mid", "verify": false}, {"name": "AUROBINDO PHARMA LTD", "cap": "Mid", "verify": false}, {"name": "BANK OF MAHARASHTRA", "cap": "Mid", "verify": false}, {"name": "BHARAT FORGE CO LTD", "cap": "Mid", "verify": false}, {"name": "BHARAT HEAVY ELECTRICALS LTD", "cap": "Mid", "verify": false}, {"name": "BIOCON LTD", "cap": "Mid", "verify": false}, {"name": "CANARA BANK", "cap": "Mid", "verify": false}, {"name": "CHOLAMANDALAM FINANCIAL HOLDINGS LTD", "cap": "Mid", "verify": false}, {"name": "DALMIA BHARAT LTD", "cap": "Mid", "verify": false}, {"name": "EXIDE INDUSTRIES LTD", "cap": "Mid", "verify": false}, {"name": "FEDERAL BANK LTD", "cap": "Mid", "verify": false}, {"name": "FORTIS HEALTHCARE LTD", "cap": "Mid", "verify": false}, {"name": "FSN E-COMMERCE VENTURES LTD", "cap": "Mid", "verify": false}, {"name": "GE VERNOVA TnD INDIA LTD", "cap": "Mid", "verify": false}, {"name": "GLENMARK PHARMACEUTICALS LTD", "cap": "Mid", "verify": false}, {"name": "GMR AIRPORTS INFRASTRUCTURE LTD", "cap": "Mid", "verify": false}, {"name": "GUJARAT FLUROCHEMICALS LTD", "cap": "Mid", "verify": false}, {"name": "HINDUSTAN PETROLEUM CORPORATION LTD", "cap": "Mid", "verify": false}, {"name": "HITACHI ENERGY INDIA LTD", "cap": "Mid", "verify": false}, {"name": "ICICI LOMBARD GENERAL INSURANCE COMPANY LTD", "cap": "Mid", "verify": false}, {"name": "IDFC FIRST BANK LTD", "cap": "Mid", "verify": false}, {"name": "INDIAN BANK", "cap": "Mid", "verify": false}, {"name": "K P R MILL LTD", "cap": "Mid", "verify": false}, {"name": "KAYNES TECHNOLOGY INDIA LTD", "cap": "Mid", "verify": false}, {"name": "KEI INDUSTRIES LTD", "cap": "Mid", "verify": false}, {"name": "LAURUS LABS LTD", "cap": "Mid", "verify": false}, {"name": "LnT FINANCE LTD", "cap": "Mid", "verify": false}, {"name": "MARICO LTD", "cap": "Mid", "verify": false}, {"name": "MAX FINANCIAL SERVICES LTD", "cap": "Mid", "verify": false}, {"name": "MULTI COMMODITY EXCHANGE OF INDIA LTD", "cap": "Mid", "verify": false}, {"name": "MUTHOOT FINANCE LTD", "cap": "Mid", "verify": false}, {"name": "NATIONAL ALUMINIUM COMPANY LTD", "cap": "Mid", "verify": false}, {"name": "NIPPON LIFE INDIA ASSET MANAGEMENT LTD", "cap": "Mid", "verify": false}, {"name": "NLC INDIA LTD", "cap": "Mid", "verify": false}, {"name": "ONE 97 COMMUNICATIONS LTD", "cap": "Mid", "verify": false}, {"name": "PAGE INDUSTRIES LTD", "cap": "Mid", "verify": false}, {"name": "PETRONET LNG LTD", "cap": "Mid", "verify": false}, {"name": "RADICO KHAITAN LTD", "cap": "Mid", "verify": false}, {"name": "STEEL AUTHORITY OF INDIA LTD", "cap": "Mid", "verify": false}, {"name": "THERMAX LTD", "cap": "Mid", "verify": false}, {"name": "VODAFONE IDEA LTD", "cap": "Mid", "verify": false}, {"name": "WAAREE ENERGIES LTD", "cap": "Mid", "verify": false}, {"name": "ALLIED BLENDERS and DISTILLERS LTD", "cap": "Small", "verify": false}, {"name": "Acutaas Chemicals Limited", "cap": "Small", "verify": false}, {"name": "Aditya Birla Real Estate Limited", "cap": "Small", "verify": false}, {"name": "BANDHAN BANK LTD", "cap": "Small", "verify": false}, {"name": "CAMPUS ACTIVEWEAR LTD", "cap": "Small", "verify": false}, {"name": "CRAFTSMAN AUTOMATION LTD", "cap": "Small", "verify": false}, {"name": "CROMPTON GREAVES CONSUMER ELECTRICAL LTD", "cap": "Small", "verify": false}, {"name": "DR LAL PATHLABS LTD", "cap": "Small", "verify": false}, {"name": "EDELWEISS FINANCIAL SERVICES LTD", "cap": "Small", "verify": false}, {"name": "EID PARRY INDIA LTD", "cap": "Small", "verify": false}, {"name": "EMMVEE PHOTOVOLTAIC POWER LTD", "cap": "Small", "verify": true}, {"name": "ENGINEERS INDIA LTD", "cap": "Small", "verify": false}, {"name": "FORCE MOTORS LTD", "cap": "Small", "verify": false}, {"name": "GREAT EASTERN SHIPPING CO LTD", "cap": "Small", "verify": false}, {"name": "HINDUSTAN COPPER LTD", "cap": "Small", "verify": false}, {"name": "INDEGENE LTD", "cap": "Small", "verify": false}, {"name": "INGERSOLL-RAND INDIA LTD", "cap": "Small", "verify": false}, {"name": "INTELLECT DESIGN ARENA LTD", "cap": "Small", "verify": false}, {"name": "ISGEC HEAVY ENGINEERING LTD", "cap": "Small", "verify": false}, {"name": "JAMNA AUTO INDUSTRIES LTD", "cap": "Small", "verify": false}, {"name": "KALPATARU PROJECTS INTERNATIONAL LTD", "cap": "Small", "verify": false}, {"name": "KAVERI SEED COMPANY LTD", "cap": "Small", "verify": false}, {"name": "KSB LTD", "cap": "Small", "verify": false}, {"name": "LT FOODS LTD", "cap": "Small", "verify": false}, {"name": "NEULAND LABORATORIES LTD", "cap": "Small", "verify": false}, {"name": "PRICOL LTD", "cap": "Small", "verify": false}, {"name": "RAMKRISHNA FORGINGS LTD", "cap": "Small", "verify": false}, {"name": "RATNAMANI METALS and TUBES LTD", "cap": "Small", "verify": false}, {"name": "STAR HEALTH and ALLIED INSURANCE COMPANY LTD", "cap": "Small", "verify": false}, {"name": "TIMKEN INDIA LTD", "cap": "Small", "verify": false}, {"name": "TRIVENI TURBINE LTD", "cap": "Small", "verify": false}, {"name": "VIP INDUSTRIES LTD", "cap": "Small", "verify": false}, {"name": "ZF COMMERCIAL VEHICLE CONTROL SYSTEMS INDIA LTD", "cap": "Small", "verify": false}], "unmatched": ["EMMVEE PHOTOVOLTAIC POWER LTD"], "ips": [{"param": "Passive Portfolio Allocation", "range": "15% – 40%", "current": "19.30%", "status": "Within"}, {"param": "Active Portfolio (Ext. Managers)", "range": "60% – 85%", "current": "80.20%", "status": "Within"}, {"param": "Equity Allocation", "range": "≥ 80%", "current": "92.35%", "status": "Within"}, {"param": "Max Allocation to Any Strategy", "range": "≤ 30%", "current": "24.23% (Buoyant)", "status": "Within"}, {"param": "Max Exposure to Any Single Stock", "range": "≤ 10%", "current": "2.40% (Icici Bank Ltd)", "status": "Within"}, {"param": "Largecap Allocation (within equity)", "range": "40% – 60%", "current": "29.42%", "status": "Breach"}, {"param": "Midcap + Smallcap Allocation (within equity)", "range": "40% – 60%", "current": "70.58%", "status": "Breach"}, {"param": "Cash in Portfolio", "range": "~ 0.5% (target)", "current": "0.50%", "status": "Within"}], "chart": [{"d": "09/04/2026", "nav": 10.0, "bse": 10.0}, {"d": "10/04/2026", "nav": 10.1002, "bse": 10.1399}, {"d": "11/04/2026", "nav": 10.0996, "bse": 10.1399}, {"d": "12/04/2026", "nav": 10.0989, "bse": 10.1399}, {"d": "13/04/2026", "nav": 10.017, "bse": 10.0628}, {"d": "14/04/2026", "nav": 10.0164, "bse": 10.0628}, {"d": "15/04/2026", "nav": 10.1738, "bse": 10.2528}, {"d": "16/04/2026", "nav": 10.2116, "bse": 10.2792}, {"d": "17/04/2026", "nav": 10.2916, "bse": 10.3762}, {"d": "18/04/2026", "nav": 10.2909, "bse": 10.3762}, {"d": "19/04/2026", "nav": 10.2902, "bse": 10.3762}, {"d": "20/04/2026", "nav": 10.2997, "bse": 10.3746}, {"d": "21/04/2026", "nav": 10.3599, "bse": 10.4548}, {"d": "22/04/2026", "nav": 10.2736, "bse": 10.4311}, {"d": "23/04/2026", "nav": 10.2073, "bse": 10.3501}, {"d": "24/04/2026", "nav": 10.1094, "bse": 10.2414}, {"d": "25/04/2026", "nav": 10.1087, "bse": 10.2414}, {"d": "26/04/2026", "nav": 10.108, "bse": 10.2414}, {"d": "27/04/2026", "nav": 10.1941, "bse": 10.3578}, {"d": "28/04/2026", "nav": 10.1726, "bse": 10.3286}, {"d": "29/04/2026", "nav": 10.218, "bse": 10.3753}, {"d": "30/04/2026", "nav": 10.1873, "bse": 10.2901}, {"d": "01/05/2026", "nav": 10.1867, "bse": 10.2901}, {"d": "02/05/2026", "nav": 10.186, "bse": 10.2901}, {"d": "03/05/2026", "nav": 10.1853, "bse": 10.2901}, {"d": "04/05/2026", "nav": 10.2497, "bse": 10.3555}, {"d": "05/05/2026", "nav": 10.2406, "bse": 10.3468}, {"d": "06/05/2026", "nav": 10.3444, "bse": 10.4918}, {"d": "07/05/2026", "nav": 10.3992, "bse": 10.5271}, {"d": "08/05/2026", "nav": 10.3776, "bse": 10.4849}, {"d": "09/05/2026", "nav": 10.3769, "bse": 10.4849}, {"d": "10/05/2026", "nav": 10.3762, "bse": 10.4849}, {"d": "11/05/2026", "nav": 10.2473, "bse": 10.3378}, {"d": "12/05/2026", "nav": 10.0349, "bse": 10.1117}, {"d": "13/05/2026", "nav": 10.1058, "bse": 10.144}, {"d": "14/05/2026", "nav": 10.144, "bse": 10.2466}, {"d": "15/05/2026", "nav": 10.1254, "bse": 10.2137}, {"d": "16/05/2026", "nav": 10.1247, "bse": 10.2137}, {"d": "17/05/2026", "nav": 10.124, "bse": 10.2137}, {"d": "18/05/2026", "nav": 10.0596, "bse": 10.1784}, {"d": "19/05/2026", "nav": 10.1034, "bse": 10.2035}, {"d": "20/05/2026", "nav": 10.1095, "bse": 10.2319}, {"d": "21/05/2026", "nav": 10.1301, "bse": 10.2439}, {"d": "22/05/2026", "nav": 10.1323, "bse": 10.268}, {"d": "23/05/2026", "nav": 10.1316, "bse": 10.268}, {"d": "24/05/2026", "nav": 10.1309, "bse": 10.268}, {"d": "25/05/2026", "nav": 10.2296, "bse": 10.3965}, {"d": "26/05/2026", "nav": 10.2195, "bse": 10.3788}, {"d": "27/05/2026", "nav": 10.2199, "bse": 10.411}, {"d": "28/05/2026", "nav": 10.2192, "bse": 10.411}, {"d": "29/05/2026", "nav": 10.1353, "bse": 10.2725}, {"d": "30/05/2026", "nav": 10.1346, "bse": 10.2725}, {"d": "31/05/2026", "nav": 10.1546, "bse": 10.2725}, {"d": "01/06/2026", "nav": 10.0341, "bse": 10.1741}, {"d": "02/06/2026", "nav": 10.0348, "bse": 10.2176}, {"d": "03/06/2026", "nav": 10.0288, "bse": 10.1831}, {"d": "04/06/2026", "nav": 10.0591, "bse": 10.2029}, {"d": "05/06/2026", "nav": 10.0649, "bse": 10.196}, {"d": "06/06/2026", "nav": 10.0649, "bse": 10.196}, {"d": "07/06/2026", "nav": 10.0649, "bse": 10.196}, {"d": "08/06/2026", "nav": 9.9267, "bse": 10.0602}, {"d": "09/06/2026", "nav": 10.0284, "bse": 10.1488}, {"d": "10/06/2026", "nav": 9.9592, "bse": 10.0873}, {"d": "11/06/2026", "nav": 9.9075, "bse": 10.0335}, {"d": "12/06/2026", "nav": 10.127, "bse": 10.2556}, {"d": "13/06/2026", "nav": 10.127, "bse": 10.2556}, {"d": "14/06/2026", "nav": 10.127, "bse": 10.2556}, {"d": "15/06/2026", "nav": 10.2371, "bse": 10.3781}, {"d": "16/06/2026", "nav": 10.2837, "bse": 10.429}, {"d": "17/06/2026", "nav": 10.3511, "bse": 10.483}, {"d": "18/06/2026", "nav": 10.4116, "bse": 10.5292}, {"d": "19/06/2026", "nav": 10.414, "bse": 10.5089}, {"d": "20/06/2026", "nav": 10.414, "bse": 10.5089}, {"d": "21/06/2026", "nav": 10.414, "bse": 10.5089}, {"d": "22/06/2026", "nav": 10.492, "bse": 10.5576}, {"d": "23/06/2026", "nav": 10.4209, "bse": 10.4486}, {"d": "24/06/2026", "nav": 10.4587, "bse": 10.5043}, {"d": "25/06/2026", "nav": 10.4429, "bse": 10.4993}, {"d": "26/06/2026", "nav": 10.4429, "bse": 10.4993}, {"d": "27/06/2026", "nav": 10.4429, "bse": 10.4993}, {"d": "28/06/2026", "nav": 10.4429, "bse": 10.4993}, {"d": "29/06/2026", "nav": 10.3957, "bse": 10.4493}, {"d": "30/06/2026", "nav": 10.4117, "bse": 10.4498}, {"d": "01/07/2026", "nav": 10.4374, "bse": 10.4964}, {"d": "02/07/2026", "nav": 10.4711, "bse": 10.5711}, {"d": "03/07/2026", "nav": 10.4346, "bse": 10.5898}, {"d": "04/07/2026", "nav": 10.4346, "bse": 10.5898}, {"d": "05/07/2026", "nav": 10.4346, "bse": 10.5898}], "chart_meta": {"start": "09/04/2026", "end": "05/07/2026", "base": 10, "nav_end": 10.4346, "bse_end": 10.5898}, "returns": {"Navigate (Whole)": {"1W": -0.08, "1M": 3.67, "2M": 1.89, "SI": 4.35}, "BSE 500 TRI": {"1W": 0.86, "1M": 3.86, "2M": 2.35, "SI": 5.9}, "Passive": {"1W": -1.75, "1M": 1.47, "2M": -2.43, "SI": -2.58, "bench": "BSE 500 TRI"}, "SageOne": {"1W": 2.22, "1M": 5.27, "2M": 6.17, "SI": 12.44, "bench": "BSE 500 TRI"}, "Green Lantern": {"1W": -0.94, "1M": 1.95, "2M": 0.06, "SI": 5.31, "bench": "BSE 500 TRI"}, "Buoyant": {"1W": 1.03, "1M": 5.27, "2M": 3.33, "SI": 5.59, "bench": "BSE 500 TRI"}, "Carnelian": {"1W": 0.18, "1M": 5.26, "2M": 4.98, "SI": 9.42, "bench": "BSE 500 TRI"}}, "ret_targets": {"1W": "28 Jun 2026", "1M": "05 Jun 2026", "2M": "05 May 2026"}, "adv_label": {"Fund": "Ionic Navigate AIF (Fund)", "Passive": "Passive", "SageOne": "SageOne", "Green Lantern": "Green Lantern", "Buoyant": "Buoyant", "Carnelian": "Carnelian", "BSE 500 TRI": "BSE 500 TRI"}, "series": {"Fund": {"post": [["2026-04-09", 10.0], ["2026-04-10", 10.1002], ["2026-04-11", 10.0996], ["2026-04-12", 10.0989], ["2026-04-13", 10.017], ["2026-04-14", 10.0164], ["2026-04-15", 10.1738], ["2026-04-16", 10.2116], ["2026-04-17", 10.2916], ["2026-04-18", 10.2909], ["2026-04-19", 10.2902], ["2026-04-20", 10.2997], ["2026-04-21", 10.3599], ["2026-04-22", 10.2736], ["2026-04-23", 10.2073], ["2026-04-24", 10.1094], ["2026-04-25", 10.1087], ["2026-04-26", 10.108], ["2026-04-27", 10.1941], ["2026-04-28", 10.1726], ["2026-04-29", 10.218], ["2026-04-30", 10.1873], ["2026-05-01", 10.1867], ["2026-05-02", 10.186], ["2026-05-03", 10.1853], ["2026-05-04", 10.2497], ["2026-05-05", 10.2406], ["2026-05-06", 10.3444], ["2026-05-07", 10.3992], ["2026-05-08", 10.3776], ["2026-05-09", 10.3769], ["2026-05-10", 10.3762], ["2026-05-11", 10.2473], ["2026-05-12", 10.0349], ["2026-05-13", 10.1058], ["2026-05-14", 10.144], ["2026-05-15", 10.1254], ["2026-05-16", 10.1247], ["2026-05-17", 10.124], ["2026-05-18", 10.0596], ["2026-05-19", 10.1034], ["2026-05-20", 10.1095], ["2026-05-21", 10.1301], ["2026-05-22", 10.1323], ["2026-05-23", 10.1316], ["2026-05-24", 10.1309], ["2026-05-25", 10.2296], ["2026-05-26", 10.2195], ["2026-05-27", 10.2199], ["2026-05-28", 10.2192], ["2026-05-29", 10.1353], ["2026-05-30", 10.1346], ["2026-05-31", 10.1546], ["2026-06-01", 10.0341], ["2026-06-02", 10.0348], ["2026-06-03", 10.0288], ["2026-06-04", 10.0591], ["2026-06-05", 10.0649], ["2026-06-06", 10.0649], ["2026-06-07", 10.0649], ["2026-06-08", 9.9267], ["2026-06-09", 10.0284], ["2026-06-10", 9.9592], ["2026-06-11", 9.9075], ["2026-06-12", 10.127], ["2026-06-13", 10.127], ["2026-06-14", 10.127], ["2026-06-15", 10.2371], ["2026-06-16", 10.2837], ["2026-06-17", 10.3511], ["2026-06-18", 10.4116], ["2026-06-19", 10.414], ["2026-06-20", 10.414], ["2026-06-21", 10.414], ["2026-06-22", 10.492], ["2026-06-23", 10.4209], ["2026-06-24", 10.4587], ["2026-06-25", 10.4429], ["2026-06-26", 10.4429], ["2026-06-27", 10.4429], ["2026-06-28", 10.4429], ["2026-06-29", 10.3957], ["2026-06-30", 10.4117], ["2026-07-01", 10.4374], ["2026-07-02", 10.4711], ["2026-07-03", 10.4346], ["2026-07-04", 10.4346], ["2026-07-05", 10.4346]], "pre": [["2026-04-09", 10.0], ["2026-04-10", 10.1112], ["2026-04-11", 10.1112], ["2026-04-12", 10.1112], ["2026-04-13", 10.0397], ["2026-04-14", 10.0397], ["2026-04-15", 10.1988], ["2026-04-16", 10.2374], ["2026-04-17", 10.3182], ["2026-04-18", 10.3182], ["2026-04-19", 10.3182], ["2026-04-20", 10.3285], ["2026-04-21", 10.3896], ["2026-04-22", 10.3868], ["2026-04-23", 10.3206], ["2026-04-24", 10.2222], ["2026-04-25", 10.2222], ["2026-04-26", 10.2222], ["2026-04-27", 10.3099], ["2026-04-28", 10.2889], ["2026-04-29", 10.3191], ["2026-04-30", 10.2821], ["2026-05-01", 10.2821], ["2026-05-02", 10.2821], ["2026-05-03", 10.2821], ["2026-05-04", 10.3478], ["2026-05-05", 10.3394], ["2026-05-06", 10.4968], ["2026-05-07", 10.5544], ["2026-05-08", 10.5336], ["2026-05-09", 10.5336], ["2026-05-10", 10.5336], ["2026-05-11", 10.4035], ["2026-05-12", 10.1885], ["2026-05-13", 10.187], ["2026-05-14", 10.2272], ["2026-05-15", 10.2091], ["2026-05-16", 10.2091], ["2026-05-17", 10.2091], ["2026-05-18", 10.1449], ["2026-05-19", 10.1898], ["2026-05-20", 10.198], ["2026-05-21", 10.2285], ["2026-05-22", 10.2314], ["2026-05-23", 10.2314], ["2026-05-24", 10.2314], ["2026-05-25", 10.3318], ["2026-05-26", 10.3223], ["2026-05-27", 10.3511], ["2026-05-28", 10.3511], ["2026-05-29", 10.267], ["2026-05-30", 10.267], ["2026-05-31", 10.267], ["2026-06-01", 10.1452], ["2026-06-02", 10.146], ["2026-06-03", 10.1399], ["2026-06-04", 10.171], ["2026-06-05", 10.1769], ["2026-06-06", 10.1769], ["2026-06-07", 10.1769], ["2026-06-08", 10.0371], ["2026-06-09", 10.14], ["2026-06-10", 10.07], ["2026-06-11", 10.0187], ["2026-06-12", 10.2408], ["2026-06-13", 10.2408], ["2026-06-14", 10.2408], ["2026-06-15", 10.3521], ["2026-06-16", 10.3993], ["2026-06-17", 10.4674], ["2026-06-18", 10.5287], ["2026-06-19", 10.5312], ["2026-06-20", 10.5312], ["2026-06-21", 10.5312], ["2026-06-22", 10.6101], ["2026-06-23", 10.5381], ["2026-06-24", 10.5765], ["2026-06-25", 10.5609], ["2026-06-26", 10.5609], ["2026-06-27", 10.5609], ["2026-06-28", 10.5609], ["2026-06-29", 10.5147], ["2026-06-30", 10.5328], ["2026-07-01", 10.5595], ["2026-07-02", 10.5943], ["2026-07-03", 10.5575], ["2026-07-04", 10.5575], ["2026-07-05", 10.5575]]}, "BSE 500 TRI": {"post": [["2026-04-09", 10.0], ["2026-04-10", 10.1399], ["2026-04-11", 10.1399], ["2026-04-12", 10.1399], ["2026-04-13", 10.0628], ["2026-04-14", 10.0628], ["2026-04-15", 10.2528], ["2026-04-16", 10.2792], ["2026-04-17", 10.3762], ["2026-04-18", 10.3762], ["2026-04-19", 10.3762], ["2026-04-20", 10.3746], ["2026-04-21", 10.4548], ["2026-04-22", 10.4311], ["2026-04-23", 10.3501], ["2026-04-24", 10.2414], ["2026-04-25", 10.2414], ["2026-04-26", 10.2414], ["2026-04-27", 10.3578], ["2026-04-28", 10.3286], ["2026-04-29", 10.3753], ["2026-04-30", 10.2901], ["2026-05-01", 10.2901], ["2026-05-02", 10.2901], ["2026-05-03", 10.2901], ["2026-05-04", 10.3555], ["2026-05-05", 10.3468], ["2026-05-06", 10.4918], ["2026-05-07", 10.5271], ["2026-05-08", 10.4849], ["2026-05-09", 10.4849], ["2026-05-10", 10.4849], ["2026-05-11", 10.3378], ["2026-05-12", 10.1117], ["2026-05-13", 10.144], ["2026-05-14", 10.2466], ["2026-05-15", 10.2137], ["2026-05-16", 10.2137], ["2026-05-17", 10.2137], ["2026-05-18", 10.1784], ["2026-05-19", 10.2035], ["2026-05-20", 10.2319], ["2026-05-21", 10.2439], ["2026-05-22", 10.268], ["2026-05-23", 10.268], ["2026-05-24", 10.268], ["2026-05-25", 10.3965], ["2026-05-26", 10.3788], ["2026-05-27", 10.411], ["2026-05-28", 10.411], ["2026-05-29", 10.2725], ["2026-05-30", 10.2725], ["2026-05-31", 10.2725], ["2026-06-01", 10.1741], ["2026-06-02", 10.2176], ["2026-06-03", 10.1831], ["2026-06-04", 10.2029], ["2026-06-05", 10.196], ["2026-06-06", 10.196], ["2026-06-07", 10.196], ["2026-06-08", 10.0602], ["2026-06-09", 10.1488], ["2026-06-10", 10.0873], ["2026-06-11", 10.0335], ["2026-06-12", 10.2556], ["2026-06-13", 10.2556], ["2026-06-14", 10.2556], ["2026-06-15", 10.3781], ["2026-06-16", 10.429], ["2026-06-17", 10.483], ["2026-06-18", 10.5292], ["2026-06-19", 10.5089], ["2026-06-20", 10.5089], ["2026-06-21", 10.5089], ["2026-06-22", 10.5576], ["2026-06-23", 10.4486], ["2026-06-24", 10.5043], ["2026-06-25", 10.4993], ["2026-06-26", 10.4993], ["2026-06-27", 10.4993], ["2026-06-28", 10.4993], ["2026-06-29", 10.4493], ["2026-06-30", 10.4498], ["2026-07-01", 10.4964], ["2026-07-02", 10.5711], ["2026-07-03", 10.5898], ["2026-07-04", 10.5898], ["2026-07-05", 10.5898]], "pre": [["2026-04-09", 10.0], ["2026-04-10", 10.1399], ["2026-04-11", 10.1399], ["2026-04-12", 10.1399], ["2026-04-13", 10.0628], ["2026-04-14", 10.0628], ["2026-04-15", 10.2528], ["2026-04-16", 10.2792], ["2026-04-17", 10.3762], ["2026-04-18", 10.3762], ["2026-04-19", 10.3762], ["2026-04-20", 10.3746], ["2026-04-21", 10.4548], ["2026-04-22", 10.4311], ["2026-04-23", 10.3501], ["2026-04-24", 10.2414], ["2026-04-25", 10.2414], ["2026-04-26", 10.2414], ["2026-04-27", 10.3578], ["2026-04-28", 10.3286], ["2026-04-29", 10.3753], ["2026-04-30", 10.2901], ["2026-05-01", 10.2901], ["2026-05-02", 10.2901], ["2026-05-03", 10.2901], ["2026-05-04", 10.3555], ["2026-05-05", 10.3468], ["2026-05-06", 10.4918], ["2026-05-07", 10.5271], ["2026-05-08", 10.4849], ["2026-05-09", 10.4849], ["2026-05-10", 10.4849], ["2026-05-11", 10.3378], ["2026-05-12", 10.1117], ["2026-05-13", 10.144], ["2026-05-14", 10.2466], ["2026-05-15", 10.2137], ["2026-05-16", 10.2137], ["2026-05-17", 10.2137], ["2026-05-18", 10.1784], ["2026-05-19", 10.2035], ["2026-05-20", 10.2319], ["2026-05-21", 10.2439], ["2026-05-22", 10.268], ["2026-05-23", 10.268], ["2026-05-24", 10.268], ["2026-05-25", 10.3965], ["2026-05-26", 10.3788], ["2026-05-27", 10.411], ["2026-05-28", 10.411], ["2026-05-29", 10.2725], ["2026-05-30", 10.2725], ["2026-05-31", 10.2725], ["2026-06-01", 10.1741], ["2026-06-02", 10.2176], ["2026-06-03", 10.1831], ["2026-06-04", 10.2029], ["2026-06-05", 10.196], ["2026-06-06", 10.196], ["2026-06-07", 10.196], ["2026-06-08", 10.0602], ["2026-06-09", 10.1488], ["2026-06-10", 10.0873], ["2026-06-11", 10.0335], ["2026-06-12", 10.2556], ["2026-06-13", 10.2556], ["2026-06-14", 10.2556], ["2026-06-15", 10.3781], ["2026-06-16", 10.429], ["2026-06-17", 10.483], ["2026-06-18", 10.5292], ["2026-06-19", 10.5089], ["2026-06-20", 10.5089], ["2026-06-21", 10.5089], ["2026-06-22", 10.5576], ["2026-06-23", 10.4486], ["2026-06-24", 10.5043], ["2026-06-25", 10.4993], ["2026-06-26", 10.4993], ["2026-06-27", 10.4993], ["2026-06-28", 10.4993], ["2026-06-29", 10.4493], ["2026-06-30", 10.4498], ["2026-07-01", 10.4964], ["2026-07-02", 10.5711], ["2026-07-03", 10.5898], ["2026-07-04", 10.5898], ["2026-07-05", 10.5898]]}, "Passive": {"post": [["2026-04-09", 10.0], ["2026-04-10", 10.0627], ["2026-04-11", 10.0627], ["2026-04-12", 10.0627], ["2026-04-13", 9.9543], ["2026-04-14", 9.9543], ["2026-04-15", 10.1073], ["2026-04-16", 10.0916], ["2026-04-17", 10.1519], ["2026-04-18", 10.1519], ["2026-04-19", 10.1519], ["2026-04-20", 10.1538], ["2026-04-21", 10.2476], ["2026-04-22", 10.1266], ["2026-04-23", 10.0411], ["2026-04-24", 9.8954], ["2026-04-25", 9.8954], ["2026-04-26", 9.8954], ["2026-04-27", 9.9987], ["2026-04-28", 9.9279], ["2026-04-29", 10.0322], ["2026-04-30", 9.9769], ["2026-05-01", 9.9769], ["2026-05-02", 9.9769], ["2026-05-03", 9.9769], ["2026-05-04", 10.0043], ["2026-05-05", 9.9852], ["2026-05-06", 10.0846], ["2026-05-07", 10.0645], ["2026-05-08", 10.0278], ["2026-05-09", 10.0278], ["2026-05-10", 10.0278], ["2026-05-11", 9.8616], ["2026-05-12", 9.666], ["2026-05-13", 9.6453], ["2026-05-14", 9.7195], ["2026-05-15", 9.7307], ["2026-05-16", 9.7307], ["2026-05-17", 9.7307], ["2026-05-18", 9.7418], ["2026-05-19", 9.75], ["2026-05-20", 9.7512], ["2026-05-21", 9.7174], ["2026-05-22", 9.7249], ["2026-05-23", 9.7249], ["2026-05-24", 9.7249], ["2026-05-25", 9.8542], ["2026-05-26", 9.8029], ["2026-05-27", 9.8217], ["2026-05-28", 9.8217], ["2026-05-29", 9.6841], ["2026-05-30", 9.6841], ["2026-05-31", 9.6841], ["2026-06-01", 9.5931], ["2026-06-02", 9.6622], ["2026-06-03", 9.5781], ["2026-06-04", 9.5968], ["2026-06-05", 9.6016], ["2026-06-06", 9.6016], ["2026-06-07", 9.6016], ["2026-06-08", 9.5072], ["2026-06-09", 9.5384], ["2026-06-10", 9.5351], ["2026-06-11", 9.5062], ["2026-06-12", 9.7184], ["2026-06-13", 9.7184], ["2026-06-14", 9.7184], ["2026-06-15", 9.8297], ["2026-06-16", 9.9134], ["2026-06-17", 9.9481], ["2026-06-18", 9.9571], ["2026-06-19", 9.9064], ["2026-06-20", 9.9064], ["2026-06-21", 9.9064], ["2026-06-22", 9.9308], ["2026-06-23", 9.8359], ["2026-06-24", 9.8983], ["2026-06-25", 9.916], ["2026-06-26", 9.916], ["2026-06-27", 9.916], ["2026-06-28", 9.916], ["2026-06-29", 9.8785], ["2026-06-30", 9.8707], ["2026-07-01", 9.8781], ["2026-07-02", 9.8797], ["2026-07-03", 9.7423], ["2026-07-04", 9.7423], ["2026-07-05", 9.7423]], "pre": [["2026-04-09", 10.0], ["2026-04-10", 10.0739], ["2026-04-11", 10.0739], ["2026-04-12", 10.0739], ["2026-04-13", 9.9654], ["2026-04-14", 9.9654], ["2026-04-15", 10.1194], ["2026-04-16", 10.1037], ["2026-04-17", 10.1641], ["2026-04-18", 10.1641], ["2026-04-19", 10.1641], ["2026-04-20", 10.166], ["2026-04-21", 10.26], ["2026-04-22", 10.1388], ["2026-04-23", 10.0535], ["2026-04-24", 9.9078], ["2026-04-25", 9.9078], ["2026-04-26", 9.9078], ["2026-04-27", 10.0112], ["2026-04-28", 9.9403], ["2026-04-29", 10.0447], ["2026-04-30", 9.9918], ["2026-05-01", 9.9918], ["2026-05-02", 9.9918], ["2026-05-03", 9.9918], ["2026-05-04", 10.0193], ["2026-05-05", 10.0002], ["2026-05-06", 10.0997], ["2026-05-07", 10.0814], ["2026-05-08", 10.0447], ["2026-05-09", 10.0447], ["2026-05-10", 10.0447], ["2026-05-11", 9.8782], ["2026-05-12", 9.6823], ["2026-05-13", 9.6616], ["2026-05-14", 9.7372], ["2026-05-15", 9.7484], ["2026-05-16", 9.7484], ["2026-05-17", 9.7484], ["2026-05-18", 9.7595], ["2026-05-19", 9.7677], ["2026-05-20", 9.7689], ["2026-05-21", 9.7365], ["2026-05-22", 9.7441], ["2026-05-23", 9.7441], ["2026-05-24", 9.7441], ["2026-05-25", 9.8736], ["2026-05-26", 9.8222], ["2026-05-27", 9.8411], ["2026-05-28", 9.8411], ["2026-05-29", 9.7034], ["2026-05-30", 9.7034], ["2026-05-31", 9.7034], ["2026-06-01", 9.6122], ["2026-06-02", 9.6815], ["2026-06-03", 9.5972], ["2026-06-04", 9.6166], ["2026-06-05", 9.6214], ["2026-06-06", 9.6214], ["2026-06-07", 9.6214], ["2026-06-08", 9.5268], ["2026-06-09", 9.5581], ["2026-06-10", 9.5548], ["2026-06-11", 9.5269], ["2026-06-12", 9.7395], ["2026-06-13", 9.7395], ["2026-06-14", 9.7395], ["2026-06-15", 9.8511], ["2026-06-16", 9.935], ["2026-06-17", 9.9697], ["2026-06-18", 9.9789], ["2026-06-19", 9.9281], ["2026-06-20", 9.9281], ["2026-06-21", 9.9281], ["2026-06-22", 9.9526], ["2026-06-23", 9.8574], ["2026-06-24", 9.92], ["2026-06-25", 9.9377], ["2026-06-26", 9.9377], ["2026-06-27", 9.9377], ["2026-06-28", 9.9377], ["2026-06-29", 9.906], ["2026-06-30", 9.9057], ["2026-07-01", 9.9156], ["2026-07-02", 9.9183], ["2026-07-03", 9.7806], ["2026-07-04", 9.7806], ["2026-07-05", 9.7806]]}, "SageOne": {"post": [["2026-04-09", 10.0], ["2026-04-10", 10.1863], ["2026-04-11", 10.1863], ["2026-04-12", 10.1863], ["2026-04-13", 10.1023], ["2026-04-14", 10.1023], ["2026-04-15", 10.2532], ["2026-04-16", 10.3218], ["2026-04-17", 10.5415], ["2026-04-18", 10.5415], ["2026-04-19", 10.5415], ["2026-04-20", 10.5586], ["2026-04-21", 10.5106], ["2026-04-22", 10.5278], ["2026-04-23", 10.482], ["2026-04-24", 10.3896], ["2026-04-25", 10.3896], ["2026-04-26", 10.3896], ["2026-04-27", 10.4786], ["2026-04-28", 10.4644], ["2026-04-29", 10.5038], ["2026-04-30", 10.4521], ["2026-05-01", 10.4521], ["2026-05-02", 10.4521], ["2026-05-03", 10.4521], ["2026-05-04", 10.6149], ["2026-05-05", 10.5905], ["2026-05-06", 10.7828], ["2026-05-07", 10.9514], ["2026-05-08", 10.9405], ["2026-05-09", 10.9405], ["2026-05-10", 10.9405], ["2026-05-11", 10.7909], ["2026-05-12", 10.4997], ["2026-05-13", 10.4878], ["2026-05-14", 10.4704], ["2026-05-15", 10.4439], ["2026-05-16", 10.4439], ["2026-05-17", 10.4439], ["2026-05-18", 10.2754], ["2026-05-19", 10.4411], ["2026-05-20", 10.4568], ["2026-05-21", 10.5112], ["2026-05-22", 10.5191], ["2026-05-23", 10.5191], ["2026-05-24", 10.5191], ["2026-05-25", 10.625], ["2026-05-26", 10.6386], ["2026-05-27", 10.6244], ["2026-05-28", 10.6244], ["2026-05-29", 10.7256], ["2026-05-30", 10.7256], ["2026-05-31", 10.7256], ["2026-06-01", 10.5266], ["2026-06-02", 10.4985], ["2026-06-03", 10.6321], ["2026-06-04", 10.689], ["2026-06-05", 10.6808], ["2026-06-06", 10.6808], ["2026-06-07", 10.6808], ["2026-06-08", 10.452], ["2026-06-09", 10.5595], ["2026-06-10", 10.4179], ["2026-06-11", 10.4138], ["2026-06-12", 10.7253], ["2026-06-13", 10.7253], ["2026-06-14", 10.7253], ["2026-06-15", 10.7984], ["2026-06-16", 10.8333], ["2026-06-17", 10.9064], ["2026-06-18", 11.0358], ["2026-06-19", 11.0119], ["2026-06-20", 11.0119], ["2026-06-21", 11.0119], ["2026-06-22", 11.0703], ["2026-06-23", 10.9917], ["2026-06-24", 11.0409], ["2026-06-25", 10.9994], ["2026-06-26", 10.9994], ["2026-06-27", 10.9994], ["2026-06-28", 10.9994], ["2026-06-29", 11.0575], ["2026-06-30", 11.1743], ["2026-07-01", 11.1893], ["2026-07-02", 11.2991], ["2026-07-03", 11.2438], ["2026-07-04", 11.2438], ["2026-07-05", 11.2438]], "pre": [["2026-04-09", 10.0], ["2026-04-10", 10.1957], ["2026-04-11", 10.1957], ["2026-04-12", 10.1957], ["2026-04-13", 10.1116], ["2026-04-14", 10.1116], ["2026-04-15", 10.2633], ["2026-04-16", 10.3319], ["2026-04-17", 10.5518], ["2026-04-18", 10.5518], ["2026-04-19", 10.5518], ["2026-04-20", 10.569], ["2026-04-21", 10.5209], ["2026-04-22", 10.5381], ["2026-04-23", 10.4925], ["2026-04-24", 10.4001], ["2026-04-25", 10.4001], ["2026-04-26", 10.4001], ["2026-04-27", 10.4891], ["2026-04-28", 10.4749], ["2026-04-29", 10.5144], ["2026-04-30", 10.4647], ["2026-05-01", 10.4647], ["2026-05-02", 10.4647], ["2026-05-03", 10.4647], ["2026-05-04", 10.6276], ["2026-05-05", 10.6032], ["2026-05-06", 10.7957], ["2026-05-07", 10.967], ["2026-05-08", 10.9563], ["2026-05-09", 10.9563], ["2026-05-10", 10.9563], ["2026-05-11", 10.8065], ["2026-05-12", 10.5149], ["2026-05-13", 10.5029], ["2026-05-14", 10.4868], ["2026-05-15", 10.4602], ["2026-05-16", 10.4602], ["2026-05-17", 10.4602], ["2026-05-18", 10.2915], ["2026-05-19", 10.4574], ["2026-05-20", 10.4732], ["2026-05-21", 10.5293], ["2026-05-22", 10.5372], ["2026-05-23", 10.5372], ["2026-05-24", 10.5372], ["2026-05-25", 10.6432], ["2026-05-26", 10.6569], ["2026-05-27", 10.6426], ["2026-05-28", 10.6426], ["2026-05-29", 10.744], ["2026-05-30", 10.744], ["2026-05-31", 10.744], ["2026-06-01", 10.5449], ["2026-06-02", 10.5168], ["2026-06-03", 10.6506], ["2026-06-04", 10.7081], ["2026-06-05", 10.6999], ["2026-06-06", 10.6999], ["2026-06-07", 10.6999], ["2026-06-08", 10.4707], ["2026-06-09", 10.5784], ["2026-06-10", 10.4365], ["2026-06-11", 10.4335], ["2026-06-12", 10.7456], ["2026-06-13", 10.7456], ["2026-06-14", 10.7456], ["2026-06-15", 10.8188], ["2026-06-16", 10.8538], ["2026-06-17", 10.927], ["2026-06-18", 11.0566], ["2026-06-19", 11.0329], ["2026-06-20", 11.0329], ["2026-06-21", 11.0329], ["2026-06-22", 11.0914], ["2026-06-23", 11.0126], ["2026-06-24", 11.062], ["2026-06-25", 11.0208], ["2026-06-26", 11.0208], ["2026-06-27", 11.0208], ["2026-06-28", 11.0208], ["2026-06-29", 11.0789], ["2026-06-30", 11.196], ["2026-07-01", 11.211], ["2026-07-02", 11.3215], ["2026-07-03", 11.2661], ["2026-07-04", 11.2661], ["2026-07-05", 11.2661]]}, "Green Lantern": {"post": [["2026-04-09", 10.0], ["2026-04-10", 10.0864], ["2026-04-11", 10.0864], ["2026-04-12", 10.0864], ["2026-04-13", 10.0645], ["2026-04-14", 10.0645], ["2026-04-15", 10.1698], ["2026-04-16", 10.2405], ["2026-04-17", 10.2988], ["2026-04-18", 10.2988], ["2026-04-19", 10.2988], ["2026-04-20", 10.321], ["2026-04-21", 10.3579], ["2026-04-22", 10.4044], ["2026-04-23", 10.4113], ["2026-04-24", 10.3586], ["2026-04-25", 10.3586], ["2026-04-26", 10.3586], ["2026-04-27", 10.4576], ["2026-04-28", 10.5072], ["2026-04-29", 10.4708], ["2026-04-30", 10.4983], ["2026-05-01", 10.4983], ["2026-05-02", 10.4983], ["2026-05-03", 10.4983], ["2026-05-04", 10.5163], ["2026-05-05", 10.525], ["2026-05-06", 10.6151], ["2026-05-07", 10.684], ["2026-05-08", 10.6672], ["2026-05-09", 10.6672], ["2026-05-10", 10.6672], ["2026-05-11", 10.5552], ["2026-05-12", 10.364], ["2026-05-13", 10.386], ["2026-05-14", 10.4231], ["2026-05-15", 10.3849], ["2026-05-16", 10.3849], ["2026-05-17", 10.3849], ["2026-05-18", 10.3263], ["2026-05-19", 10.4035], ["2026-05-20", 10.4309], ["2026-05-21", 10.4681], ["2026-05-22", 10.3627], ["2026-05-23", 10.3627], ["2026-05-24", 10.3627], ["2026-05-25", 10.42], ["2026-05-26", 10.4389], ["2026-05-27", 10.5386], ["2026-05-28", 10.5386], ["2026-05-29", 10.4486], ["2026-05-30", 10.4486], ["2026-05-31", 10.4486], ["2026-06-01", 10.2851], ["2026-06-02", 10.2702], ["2026-06-03", 10.2533], ["2026-06-04", 10.3321], ["2026-06-05", 10.3294], ["2026-06-06", 10.3294], ["2026-06-07", 10.3294], ["2026-06-08", 10.1949], ["2026-06-09", 10.2979], ["2026-06-10", 10.1784], ["2026-06-11", 10.1058], ["2026-06-12", 10.3072], ["2026-06-13", 10.3072], ["2026-06-14", 10.3072], ["2026-06-15", 10.349], ["2026-06-16", 10.3558], ["2026-06-17", 10.4741], ["2026-06-18", 10.5525], ["2026-06-19", 10.606], ["2026-06-20", 10.606], ["2026-06-21", 10.606], ["2026-06-22", 10.8003], ["2026-06-23", 10.7306], ["2026-06-24", 10.6806], ["2026-06-25", 10.6315], ["2026-06-26", 10.6315], ["2026-06-27", 10.6315], ["2026-06-28", 10.6315], ["2026-06-29", 10.6363], ["2026-06-30", 10.6282], ["2026-07-01", 10.5967], ["2026-07-02", 10.6022], ["2026-07-03", 10.5311], ["2026-07-04", 10.5311], ["2026-07-05", 10.5311]], "pre": [["2026-04-09", 10.0], ["2026-04-10", 10.0925], ["2026-04-11", 10.0925], ["2026-04-12", 10.0925], ["2026-04-13", 10.0706], ["2026-04-14", 10.0706], ["2026-04-15", 10.1764], ["2026-04-16", 10.2471], ["2026-04-17", 10.3055], ["2026-04-18", 10.3055], ["2026-04-19", 10.3055], ["2026-04-20", 10.3277], ["2026-04-21", 10.3646], ["2026-04-22", 10.4111], ["2026-04-23", 10.4181], ["2026-04-24", 10.3654], ["2026-04-25", 10.3654], ["2026-04-26", 10.3654], ["2026-04-27", 10.4645], ["2026-04-28", 10.5141], ["2026-04-29", 10.4786], ["2026-04-30", 10.5075], ["2026-05-01", 10.5075], ["2026-05-02", 10.5075], ["2026-05-03", 10.5075], ["2026-05-04", 10.5255], ["2026-05-05", 10.5342], ["2026-05-06", 10.6244], ["2026-05-07", 10.695], ["2026-05-08", 10.6781], ["2026-05-09", 10.6781], ["2026-05-10", 10.6781], ["2026-05-11", 10.5661], ["2026-05-12", 10.3746], ["2026-05-13", 10.3967], ["2026-05-14", 10.4347], ["2026-05-15", 10.3964], ["2026-05-16", 10.3964], ["2026-05-17", 10.3964], ["2026-05-18", 10.3377], ["2026-05-19", 10.415], ["2026-05-20", 10.4425], ["2026-05-21", 10.4819], ["2026-05-22", 10.3765], ["2026-05-23", 10.3765], ["2026-05-24", 10.3765], ["2026-05-25", 10.4338], ["2026-05-26", 10.4527], ["2026-05-27", 10.5526], ["2026-05-28", 10.5526], ["2026-05-29", 10.463], ["2026-05-30", 10.463], ["2026-05-31", 10.463], ["2026-06-01", 10.2993], ["2026-06-02", 10.2843], ["2026-06-03", 10.2674], ["2026-06-04", 10.3469], ["2026-06-05", 10.3442], ["2026-06-06", 10.3442], ["2026-06-07", 10.3442], ["2026-06-08", 10.2095], ["2026-06-09", 10.3126], ["2026-06-10", 10.1929], ["2026-06-11", 10.1212], ["2026-06-12", 10.323], ["2026-06-13", 10.323], ["2026-06-14", 10.323], ["2026-06-15", 10.3648], ["2026-06-16", 10.3716], ["2026-06-17", 10.4901], ["2026-06-18", 10.5689], ["2026-06-19", 10.6224], ["2026-06-20", 10.6224], ["2026-06-21", 10.6224], ["2026-06-22", 10.8171], ["2026-06-23", 10.7473], ["2026-06-24", 10.6972], ["2026-06-25", 10.6483], ["2026-06-26", 10.6483], ["2026-06-27", 10.6483], ["2026-06-28", 10.6483], ["2026-06-29", 10.6532], ["2026-06-30", 10.645], ["2026-07-01", 10.6135], ["2026-07-02", 10.6196], ["2026-07-03", 10.5484], ["2026-07-04", 10.5484], ["2026-07-05", 10.5484]]}, "Buoyant": {"post": [["2026-04-09", 10.0], ["2026-04-10", 10.1285], ["2026-04-11", 10.1285], ["2026-04-12", 10.1285], ["2026-04-13", 10.0673], ["2026-04-14", 10.0673], ["2026-04-15", 10.2365], ["2026-04-16", 10.2543], ["2026-04-17", 10.3341], ["2026-04-18", 10.3341], ["2026-04-19", 10.3341], ["2026-04-20", 10.3399], ["2026-04-21", 10.4437], ["2026-04-22", 10.4609], ["2026-04-23", 10.3408], ["2026-04-24", 10.2558], ["2026-04-25", 10.2558], ["2026-04-26", 10.2558], ["2026-04-27", 10.2899], ["2026-04-28", 10.2289], ["2026-04-29", 10.2434], ["2026-04-30", 10.1768], ["2026-05-01", 10.1768], ["2026-05-02", 10.1768], ["2026-05-03", 10.1768], ["2026-05-04", 10.2267], ["2026-05-05", 10.2189], ["2026-05-06", 10.4057], ["2026-05-07", 10.4488], ["2026-05-08", 10.3889], ["2026-05-09", 10.3889], ["2026-05-10", 10.3889], ["2026-05-11", 10.2953], ["2026-05-12", 10.0845], ["2026-05-13", 10.0798], ["2026-05-14", 10.1251], ["2026-05-15", 10.099], ["2026-05-16", 10.099], ["2026-05-17", 10.099], ["2026-05-18", 10.05], ["2026-05-19", 10.0189], ["2026-05-20", 10.0084], ["2026-05-21", 10.0468], ["2026-05-22", 10.1371], ["2026-05-23", 10.1371], ["2026-05-24", 10.1371], ["2026-05-25", 10.2336], ["2026-05-26", 10.2168], ["2026-05-27", 10.2216], ["2026-05-28", 10.2216], ["2026-05-29", 10.1039], ["2026-05-30", 10.1039], ["2026-05-31", 10.1039], ["2026-06-01", 10.0243], ["2026-06-02", 9.9854], ["2026-06-03", 10.0194], ["2026-06-04", 10.0248], ["2026-06-05", 10.0309], ["2026-06-06", 10.0309], ["2026-06-07", 10.0309], ["2026-06-08", 9.9207], ["2026-06-09", 10.0266], ["2026-06-10", 10.0041], ["2026-06-11", 9.9586], ["2026-06-12", 10.1447], ["2026-06-13", 10.1447], ["2026-06-14", 10.1447], ["2026-06-15", 10.2656], ["2026-06-16", 10.2973], ["2026-06-17", 10.3573], ["2026-06-18", 10.424], ["2026-06-19", 10.4271], ["2026-06-20", 10.4271], ["2026-06-21", 10.4271], ["2026-06-22", 10.4512], ["2026-06-23", 10.3875], ["2026-06-24", 10.456], ["2026-06-25", 10.4517], ["2026-06-26", 10.4517], ["2026-06-27", 10.4517], ["2026-06-28", 10.4517], ["2026-06-29", 10.3912], ["2026-06-30", 10.394], ["2026-07-01", 10.4547], ["2026-07-02", 10.5037], ["2026-07-03", 10.5595], ["2026-07-04", 10.5595], ["2026-07-05", 10.5595]], "pre": [["2026-04-09", 10.0], ["2026-04-10", 10.1382], ["2026-04-11", 10.1382], ["2026-04-12", 10.1382], ["2026-04-13", 10.0783], ["2026-04-14", 10.0783], ["2026-04-15", 10.2481], ["2026-04-16", 10.2659], ["2026-04-17", 10.3459], ["2026-04-18", 10.3459], ["2026-04-19", 10.3459], ["2026-04-20", 10.3517], ["2026-04-21", 10.4555], ["2026-04-22", 10.4731], ["2026-04-23", 10.3528], ["2026-04-24", 10.2678], ["2026-04-25", 10.2678], ["2026-04-26", 10.2678], ["2026-04-27", 10.3018], ["2026-04-28", 10.2408], ["2026-04-29", 10.2553], ["2026-04-30", 10.1902], ["2026-05-01", 10.1902], ["2026-05-02", 10.1902], ["2026-05-03", 10.1902], ["2026-05-04", 10.2401], ["2026-05-05", 10.2323], ["2026-05-06", 10.4194], ["2026-05-07", 10.464], ["2026-05-08", 10.4041], ["2026-05-09", 10.4041], ["2026-05-10", 10.4041], ["2026-05-11", 10.3104], ["2026-05-12", 10.0994], ["2026-05-13", 10.0947], ["2026-05-14", 10.1411], ["2026-05-15", 10.115], ["2026-05-16", 10.115], ["2026-05-17", 10.115], ["2026-05-18", 10.0659], ["2026-05-19", 10.0348], ["2026-05-20", 10.0243], ["2026-05-21", 10.0639], ["2026-05-22", 10.1546], ["2026-05-23", 10.1546], ["2026-05-24", 10.1546], ["2026-05-25", 10.2512], ["2026-05-26", 10.2344], ["2026-05-27", 10.2394], ["2026-05-28", 10.2394], ["2026-05-29", 10.1214], ["2026-05-30", 10.1214], ["2026-05-31", 10.1214], ["2026-06-01", 10.0417], ["2026-06-02", 10.0028], ["2026-06-03", 10.0368], ["2026-06-04", 10.0425], ["2026-06-05", 10.0487], ["2026-06-06", 10.0487], ["2026-06-07", 10.0487], ["2026-06-08", 9.9383], ["2026-06-09", 10.0444], ["2026-06-10", 10.0219], ["2026-06-11", 9.9771], ["2026-06-12", 10.1638], ["2026-06-13", 10.1638], ["2026-06-14", 10.1638], ["2026-06-15", 10.2849], ["2026-06-16", 10.3167], ["2026-06-17", 10.3768], ["2026-06-18", 10.4436], ["2026-06-19", 10.4467], ["2026-06-20", 10.4467], ["2026-06-21", 10.4467], ["2026-06-22", 10.4709], ["2026-06-23", 10.4071], ["2026-06-24", 10.4761], ["2026-06-25", 10.4726], ["2026-06-26", 10.4726], ["2026-06-27", 10.4726], ["2026-06-28", 10.4726], ["2026-06-29", 10.4119], ["2026-06-30", 10.4148], ["2026-07-01", 10.4764], ["2026-07-02", 10.5264], ["2026-07-03", 10.5824], ["2026-07-04", 10.5824], ["2026-07-05", 10.5824]]}, "Carnelian": {"post": [["2026-04-09", 10.0], ["2026-04-10", 10.0895], ["2026-04-11", 10.0895], ["2026-04-12", 10.0895], ["2026-04-13", 9.9887], ["2026-04-14", 9.9887], ["2026-04-15", 10.2036], ["2026-04-16", 10.2653], ["2026-04-17", 10.3283], ["2026-04-18", 10.3283], ["2026-04-19", 10.3283], ["2026-04-20", 10.3348], ["2026-04-21", 10.3962], ["2026-04-22", 10.414], ["2026-04-23", 10.336], ["2026-04-24", 10.2162], ["2026-04-25", 10.2162], ["2026-04-26", 10.2162], ["2026-04-27", 10.3327], ["2026-04-28", 10.3208], ["2026-04-29", 10.3676], ["2026-04-30", 10.3082], ["2026-05-01", 10.3082], ["2026-05-02", 10.3082], ["2026-05-03", 10.3082], ["2026-05-04", 10.4338], ["2026-05-05", 10.423], ["2026-05-06", 10.6533], ["2026-05-07", 10.73], ["2026-05-08", 10.7577], ["2026-05-09", 10.7577], ["2026-05-10", 10.7577], ["2026-05-11", 10.6127], ["2026-05-12", 10.3888], ["2026-05-13", 10.3875], ["2026-05-14", 10.4143], ["2026-05-15", 10.4029], ["2026-05-16", 10.4029], ["2026-05-17", 10.4029], ["2026-05-18", 10.2901], ["2026-05-19", 10.3659], ["2026-05-20", 10.3774], ["2026-05-21", 10.434], ["2026-05-22", 10.4486], ["2026-05-23", 10.4486], ["2026-05-24", 10.4486], ["2026-05-25", 10.5704], ["2026-05-26", 10.5673], ["2026-05-27", 10.5746], ["2026-05-28", 10.5746], ["2026-05-29", 10.5027], ["2026-05-30", 10.5027], ["2026-05-31", 10.5027], ["2026-06-01", 10.3848], ["2026-06-02", 10.3951], ["2026-06-03", 10.3671], ["2026-06-04", 10.3727], ["2026-06-05", 10.3951], ["2026-06-06", 10.3951], ["2026-06-07", 10.3951], ["2026-06-08", 10.2139], ["2026-06-09", 10.3793], ["2026-06-10", 10.2787], ["2026-06-11", 10.1965], ["2026-06-12", 10.4536], ["2026-06-13", 10.4536], ["2026-06-14", 10.4536], ["2026-06-15", 10.6491], ["2026-06-16", 10.7292], ["2026-06-17", 10.7818], ["2026-06-18", 10.8377], ["2026-06-19", 10.845], ["2026-06-20", 10.845], ["2026-06-21", 10.845], ["2026-06-22", 10.9191], ["2026-06-23", 10.8595], ["2026-06-24", 10.9347], ["2026-06-25", 10.9219], ["2026-06-26", 10.9219], ["2026-06-27", 10.9219], ["2026-06-28", 10.9219], ["2026-06-29", 10.7805], ["2026-06-30", 10.8176], ["2026-07-01", 10.8917], ["2026-07-02", 10.9395], ["2026-07-03", 10.942], ["2026-07-04", 10.942], ["2026-07-05", 10.942]], "pre": [["2026-04-09", 10.0], ["2026-04-10", 10.0989], ["2026-04-11", 10.0989], ["2026-04-12", 10.0989], ["2026-04-13", 9.998], ["2026-04-14", 9.998], ["2026-04-15", 10.2138], ["2026-04-16", 10.2756], ["2026-04-17", 10.3388], ["2026-04-18", 10.3388], ["2026-04-19", 10.3388], ["2026-04-20", 10.3454], ["2026-04-21", 10.4073], ["2026-04-22", 10.4252], ["2026-04-23", 10.3472], ["2026-04-24", 10.2272], ["2026-04-25", 10.2272], ["2026-04-26", 10.2272], ["2026-04-27", 10.3439], ["2026-04-28", 10.332], ["2026-04-29", 10.3789], ["2026-04-30", 10.322], ["2026-05-01", 10.322], ["2026-05-02", 10.322], ["2026-05-03", 10.322], ["2026-05-04", 10.4477], ["2026-05-05", 10.4369], ["2026-05-06", 10.6675], ["2026-05-07", 10.7443], ["2026-05-08", 10.7737], ["2026-05-09", 10.7737], ["2026-05-10", 10.7737], ["2026-05-11", 10.6285], ["2026-05-12", 10.4042], ["2026-05-13", 10.403], ["2026-05-14", 10.431], ["2026-05-15", 10.4196], ["2026-05-16", 10.4196], ["2026-05-17", 10.4196], ["2026-05-18", 10.3066], ["2026-05-19", 10.3829], ["2026-05-20", 10.3944], ["2026-05-21", 10.4527], ["2026-05-22", 10.4674], ["2026-05-23", 10.4674], ["2026-05-24", 10.4674], ["2026-05-25", 10.5894], ["2026-05-26", 10.5863], ["2026-05-27", 10.5937], ["2026-05-28", 10.5937], ["2026-05-29", 10.5217], ["2026-05-30", 10.5217], ["2026-05-31", 10.5217], ["2026-06-01", 10.4036], ["2026-06-02", 10.4139], ["2026-06-03", 10.3859], ["2026-06-04", 10.3921], ["2026-06-05", 10.4145], ["2026-06-06", 10.4145], ["2026-06-07", 10.4145], ["2026-06-08", 10.2329], ["2026-06-09", 10.3987], ["2026-06-10", 10.2979], ["2026-06-11", 10.2167], ["2026-06-12", 10.4743], ["2026-06-13", 10.4743], ["2026-06-14", 10.4743], ["2026-06-15", 10.6702], ["2026-06-16", 10.7504], ["2026-06-17", 10.8031], ["2026-06-18", 10.8592], ["2026-06-19", 10.8666], ["2026-06-20", 10.8666], ["2026-06-21", 10.8666], ["2026-06-22", 10.9407], ["2026-06-23", 10.881], ["2026-06-24", 10.9565], ["2026-06-25", 10.9442], ["2026-06-26", 10.9442], ["2026-06-27", 10.9442], ["2026-06-28", 10.9442], ["2026-06-29", 10.8026], ["2026-06-30", 10.8397], ["2026-07-01", 10.914], ["2026-07-02", 10.9626], ["2026-07-03", 10.9651], ["2026-07-04", 10.9651], ["2026-07-05", 10.9651]]}}, "hist_dates": ["2026-04-09", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-18", "2026-04-19", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-24", "2026-04-25", "2026-04-26", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30", "2026-05-01", "2026-05-02", "2026-05-03", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30", "2026-05-31", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-06", "2026-06-07", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-13", "2026-06-14", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-27", "2026-06-28", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-03", "2026-07-04", "2026-07-05"], "has_pretax": true, "mom": {"labels": ["Apr 2026", "May 2026", "Jun 2026", "Jul 2026"], "rows": {"Fund": [1.87, -0.32, 2.53, 0.22], "Passive": [-0.23, -2.93, 1.93, -1.3], "SageOne": [4.52, 2.62, 4.18, 0.62], "Green Lantern": [4.98, -0.47, 1.72, -0.91], "Buoyant": [1.77, -0.72, 2.87, 1.59], "Carnelian": [3.08, 1.89, 3.0, 1.15], "BSE 500 TRI": [2.9, -0.17, 1.73, 1.34]}}, "risk": {"order": ["Fund", "Passive", "SageOne", "Green Lantern", "Buoyant", "Carnelian", "BSE 500 TRI"], "rows": {"Fund": {"std": 9.78, "beta": 0.86, "dd": 6.68, "mdd": -4.73, "sharpe": 0.7, "sortino": 1.02, "n": 87}, "Passive": {"std": 10.74, "beta": 0.89, "dd": 8.05, "mdd": -7.23, "sharpe": -1.21, "sortino": -1.61, "n": 87}, "SageOne": {"std": 13.8, "beta": 0.98, "dd": 8.64, "mdd": -6.17, "sharpe": 2.09, "sortino": 3.35, "n": 87}, "Green Lantern": {"std": 9.83, "beta": 0.68, "dd": 6.63, "mdd": -5.41, "sharpe": 0.96, "sortino": 1.43, "n": 87}, "Buoyant": {"std": 9.87, "beta": 0.85, "dd": 6.34, "mdd": -5.16, "sharpe": 1.04, "sortino": 1.62, "n": 87}, "Carnelian": {"std": 12.2, "beta": 1.04, "dd": 7.59, "mdd": -5.22, "sharpe": 1.71, "sortino": 2.74, "n": 87}, "BSE 500 TRI": {"std": 10.79, "beta": 1.0, "dd": 7.14, "mdd": -4.69, "sharpe": 1.04, "sortino": 1.57, "n": 87}}, "rf": 6.0, "ann": 252, "from": "09 Apr 2026", "to": "05 Jul 2026"}, "mis": {"asof": "02 Jul 2026", "total": 828208985, "n_deals": 77, "n_clients": 69, "n_rm": 38, "new": {"amt": 814608985.39, "n": 70}, "topup": {"amt": 13600000.0, "n": 7}, "hni": {"amt": 675208985.39, "n": 69}, "uhni": {"amt": 153000000.0, "n": 8}, "weekly": [{"w": "06 Apr", "new": 230008985, "top": 0, "tot": 230008985, "n": 19}, {"w": "13 Apr", "new": 20000000, "top": 0, "tot": 20000000, "n": 2}, {"w": "20 Apr", "new": 7500000, "top": 0, "tot": 7500000, "n": 3}, {"w": "27 Apr", "new": 80000000, "top": 10000000, "tot": 90000000, "n": 4}, {"w": "04 May", "new": 76500000, "top": 0, "tot": 76500000, "n": 5}, {"w": "11 May", "new": 59500000, "top": 0, "tot": 59500000, "n": 5}, {"w": "18 May", "new": 93000000, "top": 500000, "tot": 93500000, "n": 6}, {"w": "25 May", "new": 7500000, "top": 500000, "tot": 8000000, "n": 4}, {"w": "01 Jun", "new": 37500000, "top": 600000, "tot": 38100000, "n": 5}, {"w": "08 Jun", "new": 83000000, "top": 400000, "tot": 83400000, "n": 6}, {"w": "15 Jun", "new": 15000000, "top": 0, "tot": 15000000, "n": 3}, {"w": "22 Jun", "new": 45100000, "top": 500000, "tot": 45600000, "n": 9}, {"w": "29 Jun", "new": 60000000, "top": 1100000, "tot": 61100000, "n": 6}], "rm": [{"rm": "Neha Mathur", "lead": "Direct", "n": 12, "aum": 186500000, "hni": 186500000, "uhni": 0, "seg": "HNI"}, {"rm": "Pratyaksha Gupta", "lead": "Vishal Khanna", "n": 9, "aum": 167500000, "hni": 167500000, "uhni": 0, "seg": "HNI"}, {"rm": "Prerna Lotlikar", "lead": "PRERNA LOTLIKAR", "n": 1, "aum": 50000000, "hni": 0, "uhni": 50000000, "seg": "UHNI"}, {"rm": "Shekhar Kilche", "lead": "Dhiren Shah", "n": 3, "aum": 44000000, "hni": 44000000, "uhni": 0, "seg": "HNI"}, {"rm": "Dinesh Malekar", "lead": "Nayanish Prabhu", "n": 3, "aum": 33000000, "hni": 33000000, "uhni": 0, "seg": "HNI"}, {"rm": "Yashkumar Jain", "lead": "Vijay Chinni", "n": 3, "aum": 30000000, "hni": 30000000, "uhni": 0, "seg": "HNI"}, {"rm": "Hemansh Kothari", "lead": "Dhiren Shah", "n": 4, "aum": 25000000, "hni": 25000000, "uhni": 0, "seg": "HNI"}, {"rm": "Anjalee Shah", "lead": "Anuj Goenka", "n": 1, "aum": 20000000, "hni": 0, "uhni": 20000000, "seg": "UHNI"}, {"rm": "Jaspreet Dang", "lead": "Jaspreet Dang", "n": 2, "aum": 20000000, "hni": 0, "uhni": 20000000, "seg": "UHNI"}, {"rm": "Nishant Bhatia", "lead": "Nishant Bhatia", "n": 1, "aum": 20000000, "hni": 0, "uhni": 20000000, "seg": "UHNI"}, {"rm": "Prashant Purwar", "lead": "Madhup Patet", "n": 2, "aum": 20000000, "hni": 20000000, "uhni": 0, "seg": "HNI"}, {"rm": "Gaurav Khadgawat", "lead": "Gaurav Khadgawat", "n": 1, "aum": 18000000, "hni": 0, "uhni": 18000000, "seg": "UHNI"}, {"rm": "Prthika Bajaj", "lead": "Tarang Maheshwari", "n": 1, "aum": 15000000, "hni": 0, "uhni": 15000000, "seg": "UHNI"}, {"rm": "Parth Shah", "lead": "Ajay Bhute", "n": 2, "aum": 12500000, "hni": 12500000, "uhni": 0, "seg": "HNI"}, {"rm": "Harsh Bagai", "lead": "Abhishek Sharma", "n": 4, "aum": 10500000, "hni": 10500000, "uhni": 0, "seg": "HNI"}, {"rm": "Pinky Gerella", "lead": "Dhiren Shah", "n": 1, "aum": 10008985, "hni": 10008985, "uhni": 0, "seg": "HNI"}, {"rm": "Sumit Sethi", "lead": "Vijay Chinni", "n": 3, "aum": 10000000, "hni": 10000000, "uhni": 0, "seg": "HNI"}, {"rm": "Neeraj Kumar", "lead": "Madhup Patet", "n": 1, "aum": 10000000, "hni": 10000000, "uhni": 0, "seg": "HNI"}, {"rm": "Arnab Bhattacharjee", "lead": "Arnab Bhattacharjee", "n": 1, "aum": 10000000, "hni": 10000000, "uhni": 0, "seg": "HNI"}, {"rm": "Anupama Som", "lead": "Anupama Som", "n": 1, "aum": 10000000, "hni": 0, "uhni": 10000000, "seg": "UHNI"}, {"rm": "Bhavik Shah", "lead": "Dhiren Shah", "n": 1, "aum": 10000000, "hni": 10000000, "uhni": 0, "seg": "HNI"}, {"rm": "Dishant Doshi", "lead": "Ajay Bhute", "n": 1, "aum": 10000000, "hni": 10000000, "uhni": 0, "seg": "HNI"}, {"rm": "Manish Tahalyani", "lead": "Nayanish Prabhu", "n": 1, "aum": 10000000, "hni": 10000000, "uhni": 0, "seg": "HNI"}, {"rm": "Somnath Balani", "lead": "Nayanish Prabhu", "n": 1, "aum": 10000000, "hni": 10000000, "uhni": 0, "seg": "HNI"}, {"rm": "Kaushik Medhi", "lead": "Nayanish Prabhu", "n": 1, "aum": 10000000, "hni": 10000000, "uhni": 0, "seg": "HNI"}, {"rm": "Prateek Chhabra", "lead": "Vishal Khanna", "n": 1, "aum": 10000000, "hni": 10000000, "uhni": 0, "seg": "HNI"}, {"rm": "Siddharth Gupta", "lead": "Vijay Chinni", "n": 1, "aum": 10000000, "hni": 10000000, "uhni": 0, "seg": "HNI"}, {"rm": "Hiral Desai", "lead": "Vijay Chinni", "n": 2, "aum": 6100000, "hni": 6100000, "uhni": 0, "seg": "HNI"}, {"rm": "Deepprakash Sharma", "lead": "Dhiren Shah", "n": 1, "aum": 5000000, "hni": 5000000, "uhni": 0, "seg": "HNI"}, {"rm": "Saurabh Pandey", "lead": "Vishal Khanna", "n": 1, "aum": 4000000, "hni": 4000000, "uhni": 0, "seg": "HNI"}, {"rm": "Saurabh Gupta", "lead": "Abhishek Sharma", "n": 3, "aum": 3500000, "hni": 3500000, "uhni": 0, "seg": "HNI"}, {"rm": "Rohan Basak", "lead": "Ajay Bhute", "n": 1, "aum": 2600000, "hni": 2600000, "uhni": 0, "seg": "HNI"}, {"rm": "Kiran Prakash", "lead": "Madhup Patet", "n": 1, "aum": 2500000, "hni": 2500000, "uhni": 0, "seg": "HNI"}, {"rm": "Khushi Taneja", "lead": "Dhiren Shah", "n": 1, "aum": 2500000, "hni": 2500000, "uhni": 0, "seg": "HNI"}, {"rm": "Madhup Patet", "lead": "Madhup Patet", "n": 1, "aum": 2500000, "hni": 2500000, "uhni": 0, "seg": "HNI"}, {"rm": "Sakshi Surana", "lead": "Nayanish Prabhu", "n": 1, "aum": 2500000, "hni": 2500000, "uhni": 0, "seg": "HNI"}, {"rm": "Manish Tahliyani", "lead": "Nayanish Prabhu", "n": 1, "aum": 2500000, "hni": 2500000, "uhni": 0, "seg": "HNI"}, {"rm": "Arun Sinha", "lead": "Chinmay Chetan", "n": 1, "aum": 2500000, "hni": 2500000, "uhni": 0, "seg": "HNI"}], "classes": [{"cls": "A1", "amt": 367008985, "n": 31, "pct": 44.3}, {"cls": "A3", "amt": 200000000, "n": 4, "pct": 24.1}, {"cls": "E", "amt": 72200000, "n": 29, "pct": 8.7}, {"cls": "B2", "amt": 69000000, "n": 3, "pct": 8.3}, {"cls": "B3", "amt": 51000000, "n": 2, "pct": 6.2}, {"cls": "C", "amt": 45000000, "n": 2, "pct": 5.4}, {"cls": "B1", "amt": 10000000, "n": 1, "pct": 1.2}, {"cls": "D", "amt": 9000000, "n": 3, "pct": 1.1}, {"cls": "H", "amt": 2500000, "n": 1, "pct": 0.3}, {"cls": "F", "amt": 2500000, "n": 1, "pct": 0.3}]}};
+const INR = n => Math.round(n).toLocaleString('en-IN');
+const CR  = n => (n/1e7).toFixed(2);
+const capColor = {Large:'var(--cap-large)',Mid:'var(--cap-mid)',Small:'var(--cap-small)'};
+const sleeveColors = ['#3D5AF1','#00B8D4','#F9A825','#7B5CFF','#15C9B0','#9AA0B8'];
+document.getElementById('asof').textContent = D.asof;
+document.getElementById('incep').textContent = D.inception;
+document.getElementById('incep2').textContent = D.inception;
+document.querySelectorAll('.asof2').forEach(e=>e.textContent=D.asof);
+document.getElementById('ftmv').textContent = INR(D.group.total_mv);
+if(document.getElementById('accr'))document.getElementById('accr').textContent=INR(D.group.accrued||0);
+
+/* KPI */
+const g=D.group;
+const eqPct=(g.equity_mv/g.total_mv*100).toFixed(2);
+const cashPct=(g.cash/g.total_mv*100).toFixed(2);
+const kpis=[
+ {lab:'Total Fund AUM',val:'₹'+CR(g.total_mv)+' Cr',sub:'₹'+INR(g.total_mv),accent:false},
+ {lab:'Fund %&nbsp;G/L',val:(g.gl_pct>0?'+':'')+g.gl_pct+'%',sub:'₹'+INR(g.gl)+' unrealised (ex-accrued)',cls:g.gl_pct>=0?'pos':'neg',accent:true},
+ {lab:'Equity Deployed',val:eqPct+'%',sub:'₹'+CR(g.equity_mv)+' Cr',accent:false},
+ {lab:'Cash &amp; Equiv.',val:cashPct+'%',sub:'₹'+CR(g.cash)+' Cr',accent:true},
+ {lab:'Strategies',val:'5 + 1',sub:D.classification.length+' unique stocks',accent:false},
+];
+document.getElementById('kpis').innerHTML=kpis.map(k=>`
+ <div class="kpi ${k.accent?'accent':''}"><div class="k-lab">${k.lab}</div>
+ <div class="k-val ${k.cls||''}">${k.val}</div><div class="k-sub">${k.sub}</div></div>`).join('');
+
+/* NAV chart */
+(function(){
+ const c=D.chart, W=1120,H=380, mL=52,mR=16,mT=16,mB=40;
+ const pw=W-mL-mR, ph=H-mT-mB;
+ const BASE=(D.chart_meta&&D.chart_meta.base)||100;
+ let vmin=Infinity,vmax=-Infinity;
+ c.forEach(p=>{vmin=Math.min(vmin,p.nav,p.bse);vmax=Math.max(vmax,p.nav,p.bse);});
+ const r0=vmax-vmin;
+ const step=r0>40?10:r0>16?5:r0>8?2:r0>3?1:r0>1.2?0.5:0.2;
+ vmin=Math.floor(vmin/step)*step-step; vmax=Math.ceil(vmax/step)*step+step;
+ const dec=vmax<100?(step<1?1:1):0;
+ const X=i=>mL+pw*i/(c.length-1);
+ const Y=v=>mT+ph*(1-(v-vmin)/(vmax-vmin));
+ let svg='';
+ // gridlines + y labels
+ for(let v=vmin;v<=vmax+1e-9;v+=step){
+   svg+=`<line x1="${mL}" y1="${Y(v).toFixed(1)}" x2="${W-mR}" y2="${Y(v).toFixed(1)}" stroke="#EEF0F7" stroke-width="1"/>`;
+   svg+=`<text x="${mL-8}" y="${(Y(v)+3.5).toFixed(1)}" font-size="11" fill="#6B6F86" text-anchor="end">${v.toFixed(dec)}</text>`;
+ }
+ // baseline (inception = BASE)
+ svg+=`<line x1="${mL}" y1="${Y(BASE).toFixed(1)}" x2="${W-mR}" y2="${Y(BASE).toFixed(1)}" stroke="#C9CEE0" stroke-width="1" stroke-dasharray="4 4"/>`;
+ // x labels (month ticks)
+ let lastMon='';
+ c.forEach((p,i)=>{const mo=p.d.slice(3);if(mo!==lastMon){lastMon=mo;
+   svg+=`<line x1="${X(i).toFixed(1)}" y1="${mT}" x2="${X(i).toFixed(1)}" y2="${mT+ph}" stroke="#F2F3F8" stroke-width="1"/>`;
+   const mn=['','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; const mm=+p.d.slice(3,5);
+   svg+=`<text x="${X(i).toFixed(1)}" y="${H-14}" font-size="11" fill="#6B6F86" text-anchor="middle">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mm-1]}</text>`;}});
+ const line=(key,color,w)=>{const pts=c.map((p,i)=>`${X(i).toFixed(1)},${Y(p[key]).toFixed(1)}`).join(' ');
+   return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;};
+ // area under NAV
+ const areaPts=c.map((p,i)=>`${X(i).toFixed(1)},${Y(p.nav).toFixed(1)}`).join(' ');
+ svg+=`<polygon points="${mL},${Y(vmin).toFixed(1)} ${areaPts} ${(W-mR)},${Y(vmin).toFixed(1)}" fill="#2D3698" opacity="0.05"/>`;
+ svg+=line('bse','#D4A843',2.2);
+ svg+=line('nav','#2D3698',2.6);
+ // end dots + labels
+ const li=c.length-1;
+ [['nav','#2D3698'],['bse','#D4A843']].forEach(([k,col])=>{
+   svg+=`<circle cx="${X(li).toFixed(1)}" cy="${Y(c[li][k]).toFixed(1)}" r="3.5" fill="${col}"/>`;
+   svg+=`<text x="${(X(li)-6).toFixed(1)}" y="${(Y(c[li][k])-7).toFixed(1)}" font-size="11.5" font-weight="700" fill="${col}" text-anchor="end">${c[li][k].toFixed(BASE<100?2:1)}</text>`;
+ });
+ document.getElementById('navChart').innerHTML=svg;
+ const m=D.chart_meta;
+ const navPct=(m.nav_end/BASE-1)*100, bsePct=(m.bse_end/BASE-1)*100;
+ document.getElementById('chartFinal').innerHTML=`Since inception: Fund <b class="${navPct>=0?'pos':'neg'}">${navPct>=0?'+':''}${navPct.toFixed(2)}%</b> (NAV ${m.nav_end.toFixed(2)}) · BSE 500 <b class="${bsePct>=0?'pos':'neg'}">${bsePct>=0?'+':''}${bsePct.toFixed(2)}%</b>`;
+ document.getElementById('chartFoot').textContent=`Indexed to 10 at inception (9 Apr = 10) on ${m.start} · ${c.length} daily observations through ${m.end}. Fund line = consolidated Unit NAV; benchmark = BSE 500 TRI, rebased to 10.`;
+})();
+
+/* IPS */
+document.getElementById('ipsBody').innerHTML=D.ips.map(r=>{
+ const cls=r.status==='Within'?'within':'breach';
+ return `<tr><td class="p">${r.param}</td><td>${r.range}</td><td>${r.current}</td>
+   <td class="st ${cls}"><span class="badge">${r.status}</span></td></tr>`;}).join('');
+const breaches=D.ips.filter(r=>r.status==='Breach');
+document.getElementById('ipsNote').innerHTML = breaches.length
+ ? `<b>&#9873; ${breaches.length} parameter(s) outside stipulated bands:</b> ${breaches.map(b=>b.param).join('; ')}. This reflects the Passive sleeve's transitional positioning (mid/small-tilted basket with ~40% cash awaiting deployment), which lowers the blended large-cap share. Expected to normalise as the Passive book is fully deployed to its target large-cap benchmark weights.`
+ : `All IPS parameters are within their stipulated ranges.`;
+
+/* Allocation donut + table */
+const aum=D.sleeves; let acc=0; const R=15.915,C=2*Math.PI*R;
+let ds=`<circle cx="21" cy="21" r="${R}" fill="none" stroke="#EEF0F7" stroke-width="6"/>`;
+aum.forEach((a,i)=>{const frac=a.total_mv/g.total_mv;const len=frac*C,gap=C-len,off=C*0.25-acc*C;
+ ds+=`<circle cx="21" cy="21" r="${R}" fill="none" stroke="${sleeveColors[i]}" stroke-width="6" stroke-dasharray="${len.toFixed(3)} ${gap.toFixed(3)}" stroke-dashoffset="${off.toFixed(3)}" transform="rotate(-90 21 21)"><title>${a.name}: ${a.alloc_pct}%</title></circle>`;acc+=frac;});
+document.getElementById('donut').innerHTML=ds;
+document.getElementById('donutTot').textContent='₹'+CR(g.total_mv)+'Cr';
+document.getElementById('donutLegend').innerHTML=aum.map((a,i)=>`<div class="lg"><span class="sw" style="background:${sleeveColors[i]}"></span><span class="nm">${a.name}</span><span class="pc">${a.alloc_pct}%</span></div>`).join('');
+document.getElementById('allocBody').innerHTML=aum.map((a,i)=>{
+ const eqShare=a.total_mv>0?Math.max(0,a.equity_mv)/a.total_mv*100:0;const cashShare=100-eqShare;
+ const glCls=a.gl_pct>=0?'pos':'neg';
+ return `<tr><td class="name"><span class="dot" style="background:${sleeveColors[i]}"></span>${a.name}<div class="acct">${a.account}</div></td>
+ <td>${CR(a.total_mv)}</td><td>${a.alloc_pct}%</td><td class="${glCls}">${a.gl_pct>0?'+':''}${a.gl_pct}%</td>
+ <td><div class="deploy" title="Equity ${eqShare.toFixed(1)}% / Cash ${cashShare.toFixed(1)}%"><i style="width:${eqShare}%;background:var(--equity)"></i><i style="width:${cashShare}%;background:var(--cash)"></i></div></td>
+ <td>${a.cash_pct}%</td><td>${a.nstocks||'—'}</td></tr>`;}).join('');
+document.getElementById('allocFoot').innerHTML=`<tr><td>Ionic Navigate AIF (Total)</td><td>${CR(g.total_mv)}</td><td>100.0%</td>
+ <td class="${g.gl_pct>=0?'pos':'neg'}">${g.gl_pct>0?'+':''}${g.gl_pct}%</td>
+ <td><div class="deploy"><i style="width:${eqPct}%;background:var(--equity)"></i><i style="width:${cashPct}%;background:var(--cash)"></i></div></td>
+ <td>${cashPct}%</td><td>—</td></tr>`;
+
+/* Market cap */
+document.getElementById('mcapBanner').innerHTML=`<b>&#10003; Source: AMFI categorisation</b> &mdash; mapped from your <i>Mcap classification.xlsx</i> (Large = top 100 by market cap, Mid = next 150, Small = 251+). ${D.unmatched.length? '<b>'+D.unmatched.length+' name(s)</b> not in the file (listed after the categorisation cut-off) shown as Small &mdash; flagged &#9873; below.' : 'All holdings matched to the file.'}`;
+function sbar(b){const tot=b.Large+b.Mid+b.Small;
+ const seg=(v,cls,key)=>{const p=tot?v/tot*100:0;if(p<=0)return '';return `<i class="${cls}" style="width:${p}%;background:${capColor[key]}" title="${key}: ${p.toFixed(1)}%">${p>=8?p.toFixed(0)+'%':''}</i>`;};
+ return `<div class="sbar">${seg(b.Large,'s-large','Large')}${seg(b.Mid,'s-mid','Mid')}${seg(b.Small,'s-small','Small')}</div>`;}
+document.getElementById('mcapFund').innerHTML=`<div class="mcap-row fund"><div class="ml">Fund — Equity<small>blended across sleeves</small></div>${sbar(D.fund_mcap)}</div>`;
+document.getElementById('mcapRows').innerHTML=D.order.map(s=>{const idx=aum.findIndex(a=>a.name===s);
+ return `<div class="mcap-row"><div class="ml"><span class="dot" style="background:${sleeveColors[idx]}"></span>${s}</div>${sbar(D.mcap[s])}</div>`;}).join('');
+
+/* Overlap */
+function heatColor(pct){if(pct>=99)return '#D6DAE2';if(pct===0)return '#1FC97E';if(pct<=7)return '#7ED957';if(pct<=14)return '#F4D923';if(pct<=20)return '#FBB034';if(pct<=27)return '#FB8C00';return '#F4511E';}
+const ord=D.order;
+let hh=`<thead><tr><th class="corner">Row&nbsp;holdings<br>also&nbsp;in&nbsp;→<br>column</th>`;
+ord.forEach(c=>hh+=`<th class="ch">${c}</th>`);hh+=`</tr></thead><tbody>`;
+ord.forEach(r=>{hh+=`<tr><th class="rh">${r}<div class="acct" style="color:#C7CBF0;font-weight:500">${D.counts[r]} stocks</div></th>`;
+ ord.forEach(c=>{const o=D.overlap[r][c];const diag=(r===c);hh+=`<td class="cell ${diag?'diag':''}" style="background:${heatColor(o.pct)}"><span class="pc">${o.pct}%</span><span class="fr">${diag?'self':o.count+'/'+o.den}</span></td>`;});
+ hh+=`</tr>`;});
+hh+=`</tbody>`;document.getElementById('heat').innerHTML=hh;
+
+/* Classification reference */
+const caps={Large:[],Mid:[],Small:[]};D.classification.forEach(c=>caps[c.cap].push(c));
+const capHead={Large:'var(--cap-large)',Mid:'var(--cap-mid)',Small:'var(--cap-small)'};
+const capInk={Large:'#fff',Mid:'#5E4609',Small:'#fff'};
+document.getElementById('clsCols').innerHTML=['Large','Mid','Small'].map(k=>{
+ const items=caps[k].map(c=>{const nm=c.name.replace(/ LTD$| LIMITED$/i,'').replace(/\b\w+/g,w=>w.length>2?w[0]+w.slice(1).toLowerCase():w);
+  return `<li><span class="tcap">${nm}</span>${c.verify?'<span class="vf" title="Not found in AMFI file — assumed Small">&#9873;</span>':''}</li>`;}).join('');
+ return `<div class="cls-col"><h4 style="background:${capHead[k]};color:${capInk[k]}">${k} cap<span>${caps[k].length}</span></h4><ul>${items}</ul></div>`;}).join('');
+
+/* Returns (interactive as-of date) */
+(function(){
+ if(!D.series||!D.hist_dates) return;
+ const dates=D.hist_dates;
+ const rows=[{k:'Green Lantern'},{k:'Buoyant'},{k:'Carnelian'},{k:'SageOne'},{k:'Passive'},
+   {k:'Fund',label:'Ionic Navigate AIF (Whole)',fund:true},{k:'BSE 500 TRI',bench:true}];
+ const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+ const fmtD=iso=>{const p=iso.split('-');return p[2]+' '+MN[+p[1]-1]+' '+p[0];};
+ const sel=document.getElementById('retAsof');
+ dates.forEach(d=>sel.add(new Option(fmtD(d),d)));
+ sel.value=dates[dates.length-1];
+ const navOnBefore=(arr,iso)=>{let r=null;for(let i=0;i<arr.length;i++){if(arr[i][0]<=iso)r=arr[i][1];else break;}return r;};
+ const shift=(iso,days,months)=>{let[y,m,dd]=iso.split('-').map(Number);
+   if(months){m-=months;while(m<=0){m+=12;y--;}}
+   const dim=new Date(Date.UTC(y,m,0)).getUTCDate(); if(dd>dim)dd=dim;
+   let ms=Date.UTC(y,m-1,dd); if(days)ms-=days*86400000;
+   return new Date(ms).toISOString().slice(0,10);};
+ const pctCell=(v,beat)=>{if(v===null||v===undefined)return '<td class="muted">&mdash;</td>';
+   const cls=v>0?'pos':v<0?'neg':'';const pill=beat===undefined?'':`<span class="ret-pill ${beat?'beat':'lag'}">${beat?'▲ Beat':'▼ Lag'}</span>`;
+   return `<td class="${cls}">${v>0?'+':''}${v.toFixed(2)}%${pill}</td>`;};
+ function seriesRet(arr,asof,starts){const end=navOnBefore(arr,asof); if(!end)return {};
+   const o={SI:(end/10-1)*100};
+   for(const p in starts){const s=navOnBefore(arr,starts[p]); o[p]=s?(end/s-1)*100:null;}
+   return o;}
+ function calc(){
+   const asof=sel.value;
+   const starts={'1W':shift(asof,7,0),'1M':shift(asof,0,1),'2M':shift(asof,0,2)};
+   document.getElementById('retWindow').textContent='Inception → '+fmtD(asof);
+   const bd=seriesRet(D.series['BSE 500 TRI'].post,asof,starts);
+   const periods=['1W','1M','2M','SI'];
+   document.getElementById('retBody').innerHTML=rows.map(r=>{
+     const d=seriesRet(D.series[r.k].post,asof,starts);
+     const rowCls=r.fund?'ret-fund':(r.bench?'ret-bench ret-bench-first':'');
+     const lbl=r.label||((D.adv_label&&D.adv_label[r.k])||r.k);
+     const cells=periods.map(p=>{const v=d[p];
+       const beat=r.bench?undefined:((bd[p]===null||bd[p]===undefined||v===null||v===undefined)?undefined:(v>bd[p]));
+       return pctCell(v,beat);}).join('');
+     return `<tr class="${rowCls}"><td class="name">${lbl}</td>${cells}</tr>`;}).join('');
+ }
+ sel.onchange=calc; calc();
+})();
+
+/* ---- Historical Returns Explorer ---- */
+(function(){
+ if(!D.hist_dates||!D.series) return;
+ const dates=D.hist_dates;
+ const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+ const fmtD=iso=>{const p=iso.split('-');return p[2]+' '+MN[+p[1]-1]+' '+p[0];};
+ const selF=document.getElementById('histFrom'),selT=document.getElementById('histTo');
+ dates.forEach(d=>{selF.add(new Option(fmtD(d),d));selT.add(new Option(fmtD(d),d));});
+ selF.value=dates[0]; selT.value=dates[dates.length-1];
+ const order=['Fund','Passive','SageOne','Green Lantern','Buoyant','Carnelian','BSE 500 TRI'];
+ const navOnBefore=(arr,iso)=>{let r=null;for(let i=0;i<arr.length;i++){if(arr[i][0]<=iso)r=arr[i][1];else break;}return r;};
+ const cell=v=>v===null?'<td>&mdash;</td>':`<td class="${v>=0?'cellpos':'cellneg'}">${v>=0?'+':''}${v.toFixed(2)}%</td>`;
+ function calc(){
+   let f=selF.value,t=selT.value; if(f>t){const x=f;f=t;t=x;selF.value=f;selT.value=t;}
+   const days=Math.round((new Date(t)-new Date(f))/86400000);
+   document.getElementById('histDays').textContent=fmtD(f)+'  →  '+fmtD(t)+'   ('+days+' days)';
+   const ret=arr=>{const a=navOnBefore(arr,f),b=navOnBefore(arr,t); if(!a||!b||a<=0)return null; return (b/a-1)*100;};
+   document.getElementById('histBody').innerHTML=order.map(k=>{
+     const s=D.series[k]; const rowcls=k==='Fund'?'fundrow':(k==='BSE 500 TRI'?'benchrow':'');
+     const rp=ret(s.pre&&s.pre.length?s.pre:s.post);
+     const ro=ret(s.post);
+     const lbl=(D.adv_label&&D.adv_label[k])||k;
+     return `<tr class="${rowcls}"><td>${lbl}</td>${cell(rp)}${cell(ro)}</tr>`;
+   }).join('');
+ }
+ selF.onchange=calc; selT.onchange=calc; calc();
+})();
+
+/* ---- Month-on-Month ---- */
+(function(){
+ if(!D.mom) return;
+ const M=D.mom, order=['Fund','Passive','SageOne','Green Lantern','Buoyant','Carnelian','BSE 500 TRI'];
+ const n=M.labels.length;
+ document.getElementById('momHead').innerHTML='<th>Strategy / Index</th>'+M.labels.map((l,i)=>`<th>${l}${i===n-1?' <span class="partial">MTD</span>':''}</th>`).join('');
+ const cell=v=>(v===null||v===undefined)?'<td>&mdash;</td>':`<td class="${v>=0?'cellpos':'cellneg'}">${v>=0?'+':''}${v.toFixed(2)}%</td>`;
+ document.getElementById('momBody').innerHTML=order.map(k=>{
+   const rowcls=k==='Fund'?'fundrow':(k==='BSE 500 TRI'?'benchrow':'');
+   const lbl=(D.adv_label&&D.adv_label[k])||k;
+   return `<tr class="${rowcls}"><td>${lbl}</td>${(M.rows[k]||[]).map(cell).join('')}</tr>`;
+ }).join('');
+})();
+
+/* ---- Risk metrics ---- */
+(function(){
+ if(!D.risk) return;
+ const R=D.risk;
+ const cols=[['std','Std Dev (ann.)'],['beta','Beta vs BSE 500'],['dd','Downside Dev (ann.)'],['mdd','Max Drawdown'],['sharpe','Sharpe'],['sortino','Sortino']];
+ document.getElementById('riskHead').innerHTML='<th>Strategy / Index</th>'+cols.map(c=>`<th>${c[1]}</th>`).join('');
+ const fmt=(k,v)=>{if(v===null||v===undefined)return '&mdash;';
+   if(k==='beta')return v.toFixed(2);
+   if(k==='std'||k==='dd'||k==='mdd')return v.toFixed(2)+'%';
+   return v.toFixed(2);};
+ document.getElementById('riskBody').innerHTML=R.order.map(k=>{
+   const r=R.rows[k]; if(!r)return '';
+   const rowcls=k==='Fund'?'fundrow':(k==='BSE 500 TRI'?'benchrow':'');
+   const lbl=(D.adv_label&&D.adv_label[k])||k;
+   const cells=cols.map(c=>{const v=r[c[0]];let cls='';
+     if(c[0]==='mdd')cls='cellneg';
+     else if(c[0]==='sharpe'||c[0]==='sortino')cls=(v>=0?'cellpos':'cellneg');
+     return `<td class="${cls}">${fmt(c[0],v)}</td>`;}).join('');
+   return `<tr class="${rowcls}"><td>${lbl}</td>${cells}</tr>`;
+ }).join('');
+ const fn=R.rows.Fund?R.rows.Fund.n:'';
+ document.getElementById('riskMeta').innerHTML=`Annualised from daily Unit NAV returns (&times;&radic;${R.ann}); risk-free ${R.rf}% p.a. for Sharpe &amp; Sortino; downside deviation is measured against the ${R.rf}% MAR. Based on ${fn} daily observations, ${R.from} &rarr; ${R.to}, versus BSE 500 TRI. For Beta, Sharpe &amp; Sortino higher is better; for Std Dev, Downside Dev &amp; Max Drawdown lower (less negative) is better. Short return history &mdash; interpret with caution.`;
+})();
+
+
+/* ---- Business MIS ---- */
+(function(){
+ if(!D.mis||D.mis.error) return;
+ const M=D.mis, fCr=n=>(n/1e7).toFixed(2), CR=n=>n/1e7;
+ document.getElementById('misAsof').textContent=M.asof;
+ const k=[
+  {lab:'Total Inflow',val:'₹'+fCr(M.total)+' Cr',sub:M.n_deals+' transactions'},
+  {lab:'New vs Top-up',val:'₹'+fCr(M.new.amt)+' / ₹'+fCr(M.topup.amt),sub:M.new.n+' new · '+M.topup.n+' top-ups (₹ Cr)',accent:true},
+  {lab:'HNI vs UHNI',val:'₹'+fCr(M.hni.amt)+' / ₹'+fCr(M.uhni.amt),sub:M.hni.n+' HNI · '+M.uhni.n+' UHNI (₹ Cr)'},
+  {lab:'Clients / RMs',val:M.n_clients+' / '+M.n_rm,sub:'unique clients · active RMs',accent:true},
+ ];
+ document.getElementById('misKpis').innerHTML=k.map(x=>`<div class="kpi ${x.accent?'accent':''}"><div class="k-lab">${x.lab}</div><div class="k-val" style="font-size:19px">${x.val}</div><div class="k-sub">${x.sub}</div></div>`).join('');
+
+ // weekly stacked bars
+ (function(){
+   const w=M.weekly,W=1120,H=320,mL=44,mR=12,mT=14,mB=42,pw=W-mL-mR,ph=H-mT-mB;
+   const maxV=Math.max(...w.map(x=>CR(x.tot)),1);
+   const step=maxV>20?5:maxV>10?2:1, vmax=Math.max(Math.ceil(maxV/step)*step,step);
+   const Y=v=>mT+ph*(1-v/vmax), gap=pw/w.length, bw=gap*0.58;
+   let s='';
+   for(let v=0;v<=vmax+1e-9;v+=step){s+=`<line x1="${mL}" y1="${Y(v).toFixed(1)}" x2="${W-mR}" y2="${Y(v).toFixed(1)}" stroke="#EEF0F7"/>`+
+     `<text x="${mL-6}" y="${(Y(v)+3.5).toFixed(1)}" font-size="10.5" fill="#6B6F86" text-anchor="end">${v}</text>`;}
+   w.forEach((x,i)=>{const cx=mL+gap*i+(gap-bw)/2, nH=CR(x.new)/vmax*ph, tH=CR(x.top)/vmax*ph;
+     s+=`<rect x="${cx.toFixed(1)}" y="${Y(CR(x.new)).toFixed(1)}" width="${bw.toFixed(1)}" height="${nH.toFixed(1)}" fill="#2D3698" rx="2"><title>${x.w}: new ₹${fCr(x.new)} Cr</title></rect>`;
+     if(x.top>0)s+=`<rect x="${cx.toFixed(1)}" y="${Y(CR(x.new)+CR(x.top)).toFixed(1)}" width="${bw.toFixed(1)}" height="${tH.toFixed(1)}" fill="#D4A843" rx="2"><title>${x.w}: top-up ₹${fCr(x.top)} Cr</title></rect>`;
+     s+=`<text x="${(cx+bw/2).toFixed(1)}" y="${(Y(CR(x.tot))-4).toFixed(1)}" font-size="9.5" fill="#1E245F" font-weight="700" text-anchor="middle">${fCr(x.tot)}</text>`;
+     s+=`<text x="${(cx+bw/2).toFixed(1)}" y="${H-15}" font-size="10" fill="#6B6F86" text-anchor="middle">${x.w}</text>`;});
+   document.getElementById('misWeekly').innerHTML=s;
+ })();
+
+ function split(el,a,b,la,lb,ca,cb){const tt=(a+b)||1;
+   document.getElementById(el).innerHTML=
+    `<div class="splitbar"><i style="width:${(a/tt*100)}%;background:${ca}">${a/tt>0.12?('₹'+fCr(a)+' Cr'):''}</i><i style="width:${(b/tt*100)}%;background:${cb}">${b/tt>0.12?('₹'+fCr(b)+' Cr'):''}</i></div>`+
+    `<div class="split-legend"><span>${la}: ${(a/tt*100).toFixed(1)}%</span><span>${lb}: ${(b/tt*100).toFixed(1)}%</span></div>`;}
+ split('misSplitFlow',M.new.amt,M.topup.amt,'New Activation','Top-up','#2D3698','#D4A843');
+ split('misSplitSeg',M.hni.amt,M.uhni.amt,'HNI','UHNI','#3D5AF1','#F9A825');
+
+ document.getElementById('misRm').innerHTML=M.rm.map(r=>
+   `<tr><td>${r.rm}</td><td>${r.lead}</td><td>${r.n}</td><td>${fCr(r.aum)}</td><td>${fCr(r.hni)}</td><td>${fCr(r.uhni)}</td><td><span class="seg-chip seg-${r.seg}">${r.seg}</span></td></tr>`).join('');
+
+ const maxc=Math.max(...M.classes.map(c=>c.amt),1);
+ document.getElementById('misClasses').innerHTML=M.classes.map(c=>
+   `<div class="clsrow"><span class="cn">${c.cls}</span><span class="cbar"><i style="width:${(c.amt/maxc*100).toFixed(1)}%"></i></span><span class="cv">₹${fCr(c.amt)} Cr · ${c.pct}% · ${c.n} inv.</span></div>`).join('');
+})();
+
+</script>
+</body>
+</html>
